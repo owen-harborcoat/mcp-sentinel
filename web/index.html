@@ -8,67 +8,94 @@
   <script type="module" src="/static/app.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#overview">Skip to workspace</a>
   <aside class="sidebar">
-    <a class="brand" href="#overview">MCP Sentinel</a>
+    <a class="brand" href="#overview" aria-label="MCP Sentinel workspace" title="MCP Sentinel">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/></svg>
+      <span>MCP Sentinel</span>
+    </a>
     <nav aria-label="Sections">
-      <a href="#timeline">Timeline</a>
-      <a href="#alerts">Alerts <span id="nav-alerts"></span></a>
-      <a href="#scans">Scans</a>
-      <a href="#channels">Notifications</a>
+      <a href="#timeline" aria-label="Timeline" title="Timeline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h5l3-7 4 14 3-7h3"/></svg><span class="nav-label">Timeline</span></a>
+      <a href="#alerts" aria-label="Alerts" title="Alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19Z"/><path d="M12 9v5m0 3h.01"/></svg><span class="nav-label">Alerts</span><span id="nav-alerts"></span></a>
+      <a href="#scans" aria-label="Scans" title="Scans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5M7 12h10"/></svg><span class="nav-label">Scans</span></a>
+      <a href="#channels" aria-label="Notifications" title="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="nav-label">Notifications</span></a>
     </nav>
-    <span id="connection" role="status">Connecting</span>
+    <div class="connection-status"><span id="connection" role="status">Connecting</span></div>
   </aside>
   <main id="overview">
-    <div class="page-actions"><a class="how-it-works-link" href="/how-it-works">How it works</a></div>
+    <h1 class="sr-only">MCP Sentinel workspace</h1>
     <div id="error" role="alert" hidden></div>
-    <form id="scan-form" class="runbar">
-      <label>Test case<select id="scenario"></select></label>
-      <label>Runtime<select id="runtime"><option value="wasmer">Wasmer</option><option value="demo">Simulation</option></select></label>
-      <label>Assessor<select id="assessor"><option value="openrouter">OpenRouter</option><option value="gemini">Gemini</option><option value="demo">Demo (no model)</option></select></label>
-      <button class="primary" id="run-scan" type="submit">Run scan</button>
-    </form>
+    <div class="control-panel">
+      <div class="workspace-topbar">
+        <span class="workspace-name">MCP Sentinel</span>
+        <dl class="workspace-stats" aria-label="Current scan overview">
+          <div><dt>Scans</dt><dd id="stat-scans">…</dd></div>
+          <div><dt>Active alerts</dt><dd id="stat-active">…</dd></div>
+          <div><dt>Failed</dt><dd id="stat-failed">…</dd></div>
+          <div class="runtime-stat"><dt>Latest runtime</dt><dd id="stat-runtime">…</dd></div>
+        </dl>
+        <a class="how-it-works-link" href="/how-it-works">How it works</a>
+      </div>
+      <form id="scan-form" class="runbar">
+        <label>Test case<select id="scenario"></select></label>
+        <label>Runtime<select id="runtime"><option value="wasmer">Wasmer</option><option value="demo">Simulation</option></select></label>
+        <label>Assessor<select id="assessor"><option value="openrouter">OpenRouter</option><option value="gemini">Gemini</option><option value="demo">Demo (no model)</option></select></label>
+        <button class="primary" id="run-scan" type="submit"><span>Run scan</span></button>
+      </form>
+    </div>
 
-    <section id="timeline" aria-labelledby="timeline-heading">
+    <section id="timeline" class="panel" aria-labelledby="timeline-heading">
       <div class="section-bar">
-        <h1 id="timeline-heading">Timeline <span id="event-count" class="counter"></span></h1>
+        <h2 id="timeline-heading">Timeline <span id="event-count" class="counter"></span></h2>
         <div class="toolbar">
-          <label class="sr-only" for="search">Search events</label><input id="search" type="search" placeholder="Find event">
+          <label class="sr-only" for="search">Search events</label><input id="search" type="search" placeholder="Search events">
           <label class="sr-only" for="event-filter">Event type</label><select id="event-filter"><option value="all">All events</option><option value="finding">Findings</option><option value="TEST">Tests</option><option value="ALERT">Alert changes</option><option value="NOTIFICATION">Notifications</option></select>
-          <label class="sr-only" for="zoom">Timeline spacing</label><select id="zoom"><option value="30">1×</option><option value="50">2×</option><option value="80">3×</option></select>
+          <label class="sr-only" for="zoom">Timeline spacing</label><select id="zoom" title="Event spacing"><option value="30">Compact</option><option value="50">Comfortable</option><option value="80">Expanded</option></select>
           <button id="latest" type="button">Latest →</button>
         </div>
       </div>
-      <div class="timeline-key"><span id="timeline-range"></span><span class="legend"><i class="warning-dot"></i> Warning <i class="emergency-dot"></i> Emergency</span></div>
-      <div id="timeline-scroll" class="timeline-scroll" tabindex="0" aria-label="Scrollable event timeline">
-        <svg id="timeline-svg" height="250" aria-label="Event sequence"></svg>
+      <div class="timeline-workspace">
+        <div class="timeline-chart">
+          <div class="timeline-key"><span id="timeline-range"></span><span class="legend"><i class="warning-dot"></i> Warning <i class="emergency-dot"></i> Emergency</span></div>
+          <div id="timeline-scroll" class="timeline-scroll" tabindex="0" aria-label="Scrollable event timeline" aria-describedby="timeline-hint">
+            <svg id="timeline-svg" height="220" aria-label="Event sequence"></svg>
+          </div>
+          <p id="timeline-empty" class="empty" hidden>No events</p>
+          <div class="timeline-footer">
+            <span id="timeline-hint">Hover to preview · Click to inspect</span>
+            <div class="event-navigation"><button id="previous-event" type="button" aria-label="Previous event">←</button><span id="timeline-position" aria-live="polite"></span><button id="next-event" type="button" aria-label="Next event">→</button></div>
+          </div>
+          <span id="timeline-window" class="sr-only"></span>
+        </div>
+        <aside id="event-detail" class="event-detail" aria-label="Event inspector"></aside>
       </div>
-      <p id="timeline-empty" class="empty" hidden>No events</p>
-      <div id="event-detail" class="event-detail" hidden></div>
-      <details class="event-log"><summary>Event log</summary><div class="table-scroll"><table><thead><tr><th>Time</th><th>Event</th><th>Detail</th><th>Scan</th></tr></thead><tbody id="event-list"></tbody></table></div></details>
+      <details class="event-log" open><summary>Recent activity</summary><div class="table-scroll"><table><thead><tr><th>Time</th><th>Event</th><th>Detail</th><th>Scan</th></tr></thead><tbody id="event-list"></tbody></table></div></details>
     </section>
 
-    <section id="alerts" aria-labelledby="alerts-heading">
-      <div class="section-bar"><h2 id="alerts-heading">Alerts <span id="alert-count" class="counter"></span></h2><div class="toolbar">
-        <label class="sr-only" for="alert-search">Search alerts</label><input id="alert-search" type="search" placeholder="Find alert">
-        <label class="sr-only" for="alert-filter">Alert status</label><select id="alert-filter"><option value="active">Active</option><option value="all">All states</option><option value="resolved">Resolved</option></select>
-        <label class="sr-only" for="severity-filter">Alert severity</label><select id="severity-filter"><option value="all">All levels</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-      </div></div>
-      <div class="table-scroll"><table class="alert-table"><thead><tr><th>ID</th><th>Finding</th><th>Level</th><th>Count</th><th>Updated</th><th>State</th></tr></thead><tbody id="alert-list"></tbody></table></div>
-      <p id="alerts-empty" class="empty" hidden>No matching alerts</p>
-    </section>
+    <div class="records-grid">
+      <section id="alerts" class="panel" aria-labelledby="alerts-heading">
+        <div class="section-bar"><h2 id="alerts-heading">Alerts <span id="alert-count" class="counter"></span></h2><div class="toolbar">
+          <label class="sr-only" for="alert-search">Search alerts</label><input id="alert-search" type="search" placeholder="Search alerts">
+          <label class="sr-only" for="alert-filter">Alert status</label><select id="alert-filter"><option value="active">Active</option><option value="all">All states</option><option value="resolved">Resolved</option></select>
+          <label class="sr-only" for="severity-filter">Alert severity</label><select id="severity-filter"><option value="all">All levels</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        </div></div>
+        <div class="table-scroll"><table class="alert-table"><thead><tr><th>ID</th><th>Finding</th><th>Level</th><th>Count</th><th>Updated</th><th>State</th></tr></thead><tbody id="alert-list"></tbody></table></div>
+        <p id="alerts-empty" class="empty" hidden>No matching alerts</p>
+      </section>
+      <section id="scans" class="panel" aria-labelledby="scans-heading">
+        <div class="section-bar"><h2 id="scans-heading">Scans <span id="scan-count" class="counter"></span></h2><label class="sr-only" for="scan-filter">Scan outcome</label><select id="scan-filter"><option value="all">All outcomes</option><option value="flagged">Flagged</option><option value="clear">No alert</option><option value="failed">Failed</option></select></div>
+        <div class="table-scroll"><table><thead><tr><th>Started</th><th>Test case</th><th>Runtime</th><th>Assessor</th><th>Duration</th><th>Result</th></tr></thead><tbody id="scan-list"></tbody></table></div>
+        <p id="scans-empty" class="empty" hidden>No scans</p>
+      </section>
+    </div>
 
-    <section id="scans" aria-labelledby="scans-heading">
-      <div class="section-bar"><h2 id="scans-heading">Scans <span id="scan-count" class="counter"></span></h2><label class="sr-only" for="scan-filter">Scan outcome</label><select id="scan-filter"><option value="all">All outcomes</option><option value="flagged">Flagged</option><option value="clear">No alert</option><option value="failed">Failed</option></select></div>
-      <div class="table-scroll"><table><thead><tr><th>Started</th><th>Test case</th><th>Runtime</th><th>Assessor</th><th>Duration</th><th>Result</th></tr></thead><tbody id="scan-list"></tbody></table></div>
-      <p id="scans-empty" class="empty" hidden>No scans</p>
-    </section>
-
-    <section id="channels" aria-labelledby="channels-heading">
+    <section id="channels" class="panel" aria-labelledby="channels-heading">
       <div class="section-bar"><h2 id="channels-heading">Notifications</h2><button id="browser-notify" type="button">Enable browser alerts</button></div>
       <dl class="channel-status"><div><dt>Browser</dt><dd id="browser-state">Off</dd></div><div><dt>Telegram</dt><dd id="telegram-state">Off</dd></div><div><dt>Twilio SMS</dt><dd id="twilio-state">Off</dd></div></dl>
-      <details><summary>Delivery attempts <span id="delivery-count" class="counter"></span></summary><div class="table-scroll"><table><thead><tr><th>Time</th><th>Alert</th><th>Channel</th><th>Status</th><th>Detail</th></tr></thead><tbody id="delivery-list"></tbody></table></div></details>
+      <details class="delivery-log"><summary>Delivery attempts <span id="delivery-count" class="counter"></span></summary><div class="table-scroll"><table><thead><tr><th>Time</th><th>Alert</th><th>Channel</th><th>Status</th><th>Detail</th></tr></thead><tbody id="delivery-list"></tbody></table></div></details>
     </section>
   </main>
+  <div id="event-tooltip" class="event-tooltip" role="tooltip" hidden></div>
   <dialog id="detail-dialog"><div class="dialog-header"><h2 id="detail-title">Scan</h2><button id="close-dialog" aria-label="Close detail" type="button">×</button></div><div id="detail-body"></div></dialog>
 </body>
 </html>

@@ -6,16 +6,61 @@ export function eventLevel(event) {
 
 export function timelineLayout(events, spacing = 30) {
   const ordered = [...events].sort((a, b) => a.id - b.id);
-  const gap = Math.max(22, Math.min(100, spacing));
-  let cursor = 50;
+  const gap = Math.max(26, Math.min(100, Number.isFinite(spacing) ? spacing : 30));
+  let cursor = 50, lastContextX = -Infinity;
   const nodes = ordered.map((event, i) => {
+    const scanBoundary = i === 0 || event.scan_id !== ordered[i - 1].scan_id;
+    if (scanBoundary) {
+      // Lifecycle events may switch to an older scan for only one event. Reserve
+      // label space between every context change, not only SCAN_STARTED events.
+      cursor = Math.max(cursor + (i > 0 ? 38 : 0), lastContextX + 160);
+      lastContextX = cursor;
+    }
     const level = eventLevel(event), x = cursor;
-    cursor += level === 'normal' ? gap : Math.max(155, gap);
-    return {event, x, level, branchY: i % 2 === 0 ? 50 : 200};
+    cursor += level === 'normal' ? gap : Math.max(166, gap);
+    return {event, x, level, branchY: 48, scanBoundary};
   });
   return {
-    width: Math.max(760, cursor + 100),
+    width: Math.max(760, cursor + 160),
     nodes,
+  };
+}
+
+export function scanContextLabel(event, scans, cases) {
+  const scan = scans.find(item => item.id === event.scan_id);
+  const name = scan && (cases[scan.scenario] || scan.scenario);
+  const full = name || 'Scan ' + (event.scan_id?.slice(0, 8) || 'unknown');
+  return {text: full.length > 24 ? full.slice(0, 23).trimEnd() + '…' : full, full};
+}
+
+export function preferredEvent(events, selectedId = null) {
+  const ordered = [...events].sort((a, b) => a.id - b.id);
+  return ordered.find(event => event.id === selectedId)
+    || ordered.findLast(event => event.kind === 'AGENT_FLAGGED')
+    || ordered.findLast(event => ['SCAN_FAILED', 'AGENT_CLEARED', 'SCAN_COMPLETED'].includes(event.kind))
+    || ordered.at(-1)
+    || null;
+}
+
+export function tooltipPosition(anchor, width, height, viewportWidth, viewportHeight) {
+  const edge = 12;
+  const left = Math.max(edge, Math.min(anchor.left + anchor.width / 2 - width / 2, viewportWidth - width - edge));
+  const above = anchor.top - height - 10;
+  const top = Math.max(edge, Math.min(above >= edge ? above : anchor.bottom + 10, viewportHeight - height - edge));
+  return {left, top};
+}
+
+export function dashboardStats(overview) {
+  const scans = overview.scans || [], alerts = overview.alerts || [];
+  const latest = [...scans].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  const runtime = latest ? (latest.runtime === 'wasmer' ? 'Wasmer' : latest.runtime === 'demo' ? 'Simulation' : latest.runtime) : 'No scans yet';
+  const provenance = latest?.result?.provenance;
+  return {
+    scans: overview.stats?.scans ?? scans.length,
+    active: alerts.filter(alert => alert.status !== 'resolved').length,
+    failed: scans.filter(scan => ['failed', 'interrupted'].includes(scan.status)).length,
+    runtime,
+    runtimeTitle: provenance ? `${runtime} · ${provenance}` : latest ? `${runtime} · ${latest.status}` : runtime,
   };
 }
 

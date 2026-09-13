@@ -45,6 +45,20 @@
         "Remove figcaptions, repeated topic labels and explanatory page footers.",
         "Keep synthetic fixture and notification preview status in the slide content."
       ]
+    },
+    {
+      "date": "2026-09-13",
+      "choice": "Compact operational dashboard with timeline previews and persistent inspector",
+      "constraints": [
+        "Unified compact control panel with actual overview counts; no separate empty action row.",
+        "Grayscale panels, consistent spacing and sidebar icons; warning and emergency colors reserved for timeline branches.",
+        "Hover or keyboard focus previews events; click or Enter opens persistent inspection.",
+        "Preview dismissal survives focus restoration on new-event polling.",
+        "Human scan-context labels keep at least 160px separation, including interleaved lifecycle events.",
+        "Recent activity is visible; alerts and scans share columns only on wide screens.",
+        "Read real persisted records. Do not add visual-only alerts or metrics."
+      ],
+      "inspiration": "21st Incident Status Timeline inspected through Exa; native project DOM/SVG retained."
     }
   ]
 }

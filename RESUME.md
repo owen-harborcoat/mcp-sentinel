@@ -20,6 +20,14 @@ A top-right How it works button opens /how-it-works. The page includes a five-no
 
 Presentation refinement: added soft blue headings, diagram accents and controls; removed all figcaptions, repeated topic labels and explanatory page footers. Shortened headings and normalized title baselines, bullet positions and diagram frames across all ten slides. Browser checks confirmed stable 384px desktop slide height and 526px height at 390px width, with no page overflow. Diagrams retain their own horizontal scroll on narrow screens. JavaScript syntax and whitespace checks passed. Pause affects SVG motion without freezing the slide entry transition.
 
+## Dashboard interaction update
+
+The main dashboard now has a unified scan-control panel, actual overview counts, a compact sidebar, a timeline with adjacent event inspector, and visible recent activity. Alerts and scans share columns on wide screens. Grayscale surfaces and consistent spacing replace the separate action row and disconnected sections.
+
+Timeline nodes have custom pointer/focus previews, Escape/scroll dismissal, persistent click/Enter inspection, previous/next/latest controls, and selectable activity rows. Labels use actual test-case names; adjacent context labels stay separated even when alert actions from older scans are interleaved. Inspector rationale remains expandable across unchanged polls. Programmatic focus restoration during new-event polling does not reopen dismissed previews. Resizing the chart keeps the selected event and its branch in view; this was browser-verified from 1440px back to the normal 884px viewport.
+
+Verification: eight focused JavaScript timeline tests and syntax checks passed. Browser checks covered pointer-triggered preview, focus preview and Escape, previous/next/latest, event-log keyboard selection, filters and empty-result recovery, clear/reselect, rationale persistence through polling, and opening actual scan evidence. Desktop 884px, mobile 390px and wide 1440px layouts had no page overflow. Native drag could not reliably validate pointer transfer into the tooltip; independent source review confirmed the hover-retention handlers, and identified the polling dismissal issue that was fixed. The new-event focus-restoration fix was source-reviewed, not tested by creating a live scan. No new scans, alerts or deliveries were created during this UI work.
+
 ## Verification
 
 - After the prompt and presentation update: 31 Python tests passed, six opt-in Wasmer tests skipped, two JavaScript tests passed, and Ruff passed. A separate fresh Wasmer/model service run completed in an isolated database and persisted the expected injection alert.
