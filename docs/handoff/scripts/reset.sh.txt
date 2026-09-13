@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+rm -f sentinel/sentinel.db
+echo "Removed sentinel/sentinel.db"
+echo "Start Helix:    uvicorn helix.server:app --reload --port 8765"
+echo "Start Sentinel: uvicorn sentinel.app:app --reload --port 8787"
+echo "Demo:           python scripts/demo_calls.py"
+echo "UI:             http://127.0.0.1:8787/"

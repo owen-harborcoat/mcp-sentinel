@@ -1,0 +1,260 @@
+{
+  "research_date": "2026-09-13",
+  "provider": "Exa MCP only",
+  "counts": {
+    "search_calls": 18,
+    "requested_results": 90,
+    "returned_url_entries": 80,
+    "unique_discovery_urls": 73,
+    "unique_fetched_urls": 22
+  },
+  "counting_note": "18 calls requested 90 result slots; 80 URL entries returned, 73 unique literal URLs. 22 unique page URLs yielded fetched text. Requested slots are not sources read. URL variants may name the same underlying project; evidence grouped by publisher/product in the report.",
+  "workstreams": [
+    "Event fit and logistics",
+    "Threat evidence and evaluation",
+    "Competition and prior art",
+    "Protocol and implementation",
+    "Wasmer feasibility"
+  ],
+  "searches": [
+    {
+      "angle": "event",
+      "query": "Official AI Security Hackathon Hackathons.team September 13 2026 Entrepreneurs First 501 Folsom luma 7a4iutvp judging rules Wasmer",
+      "numResults": 5,
+      "urls": [
+        "https://luma.com/7a4iutvp",
+        "https://luma.com/entrepreneurs-first",
+        "https://luma.com/AI-security-hackathon",
+        "https://luma.com/tejas-5tht",
+        "https://luma.com/sk000djt"
+      ]
+    },
+    {
+      "angle": "protocol",
+      "query": "MCP specification tools listChanged tool descriptions annotations security Streamable HTTP protocol version official",
+      "numResults": 5,
+      "urls": [
+        "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+        "https://mcp.mintlify.app/specification/2025-11-25/basic/transports",
+        "https://mcp.mintlify.app/specification/draft/server/tools",
+        "https://modelcontextprotocol.io/specification/2025-06-18/server/tools",
+        "https://mcp-staging.mintlify.app/specification/draft/basic/transports/streamable-http"
+      ]
+    },
+    {
+      "angle": "competition",
+      "query": "MCP tool rug pull detection tool pinning hashing descriptions schemas mcp-scan Invariant Snyk official GitHub",
+      "numResults": 5,
+      "urls": [
+        "https://invariantlabs-ai.github.io/docs/mcp-scan/",
+        "https://github.com/snyk/agent-scan",
+        "https://github.com/invariantlabs-ai/mcp-scan?tab=readme-ov-file",
+        "https://invariantlabs.ai/blog/introducing-mcp-scan",
+        "https://github.com/invariantlabs-ai/mcp-scan/blob/608b50b0/README.md"
+      ]
+    },
+    {
+      "angle": "threat",
+      "query": "Original research MCP tool poisoning attacks rug pull Invariant Labs 2025 tool descriptions security",
+      "numResults": 5,
+      "urls": [
+        "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks",
+        "https://github.com/invariantlabs-ai/mcp-injection-experiments?tab=readme-ov-file",
+        "https://invariantlabs.ai/blog/introducing-mcp-scan",
+        "https://invariantlabs.ai/blog/whatsapp-mcp-exploited",
+        "https://arxiv.org/html/2508.12538v1"
+      ]
+    },
+    {
+      "angle": "event",
+      "query": "AI Security Hackathon Hackathons.team September 13 September 11 2026 luma 7a4iutvp rules team progress existing code",
+      "numResults": 5,
+      "urls": [
+        "https://luma.com/7a4iutvp",
+        "https://luma.com/AI-security-hackathon",
+        "https://luma.com/o4520lh6",
+        "https://luma.com/tejas-5tht",
+        "https://luma.com/3gswve8n"
+      ]
+    },
+    {
+      "angle": "protocol",
+      "query": "Official Python MCP SDK v1 stable v2 alpha Streamable HTTP stateless json_response lowlevel server python client",
+      "numResults": 5,
+      "urls": [
+        "https://py.sdk.modelcontextprotocol.io/v1/",
+        "https://github.com/modelcontextprotocol/python-sdk/blob/HEAD/docs/migration.md",
+        "https://py.sdk.modelcontextprotocol.io/v2/run/",
+        "https://github.com/modelcontextprotocol/python-sdk",
+        "https://py.sdk.modelcontextprotocol.io/"
+      ]
+    },
+    {
+      "angle": "competition",
+      "query": "MCP security gateway tool drift pinning runtime quarantine ToolHive Docker MCP Gateway tool poisoning official",
+      "numResults": 5,
+      "urls": [
+        "https://github.com/docker/mcp-gateway/blob/fdb82a06/docs/security.md",
+        "http://github.com/docker/mcp-gateway",
+        "https://microsoft.github.io/agent-governance-toolkit/integrations/mcp-trust-guide/",
+        "https://github.com/microsoft/agent-governance-toolkit/blob/013c7fb44ae589c21488b2746fef9ee44c4f1416/docs/specs/MCP-SECURITY-GATEWAY-1.0.md",
+        "https://github.com/stacklok/toolhive/"
+      ]
+    },
+    {
+      "angle": "threat",
+      "query": "MCP Deadbugz delayed tool poisoning rug pull original research 2026",
+      "numResults": 5,
+      "urls": [
+        "https://www.pillar.security/blog/deadbugz-currently-active-mcp-supply-chain-campaign",
+        "https://labs.cloudsecurityalliance.org/research/csa-research-note-deadbugz-mcp-metadata-poisoning-20260902-c/",
+        "https://labs.cloudsecurityalliance.org/research/csa-research-note-deadbugz-mcp-supply-chain-20260830-csa-sty/",
+        "https://labs.cloudsecurityalliance.org/wp-content/uploads/2026/09/CSA%5Fresearch%5Fnote%5Fdeadbugz%5Fmcp%5Fmetadata%5Fpoisoning%5F20260902-csa-styled.pdf",
+        "https://www.pillar.security/"
+      ]
+    },
+    {
+      "angle": "wasmer",
+      "query": "Wasmer SDK Python sandbox September 1 2026 agent sandbox filesystem network capabilities documentation",
+      "numResults": 5,
+      "urls": [
+        "https://pypi.org/project/wasmer-sdk/0.2.1/",
+        "https://wasmer.io/posts/wasmer-local-sandboxes-for-ai-agents",
+        "https://docs.wasmer.io/runtime/get-started/",
+        "https://pypi.org/project/wasmer-sdk/",
+        "https://pypi.org/project/wasmer-sdk/0.1.2/"
+      ]
+    },
+    {
+      "angle": "threat",
+      "query": "category:research paper MCP tool poisoning benchmark defenses false positives tool drift unchanged descriptions AgentDojo agent security evaluation",
+      "numResults": 5,
+      "urls": [
+        "https://arxiv.org/html/2606.20922",
+        "https://ojs.aaai.org/index.php/AAAI/article/view/40895",
+        "https://arxiv.org/html/2605.24069v1",
+        "https://arxiv.org/pdf/2406.13352",
+        "https://ojs.aaai.org/index.php/AAAI/article/download/40895/44856"
+      ]
+    },
+    {
+      "angle": "protocol",
+      "query": "site:modelcontextprotocol.io specification 2025-11-25 tools listChanged pagination tools call isError Streamable HTTP",
+      "numResults": 5,
+      "urls": [
+        "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+        "https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/pagination",
+        "https://modelcontextprotocol.io/specification/2025-11-25/server/tools.md",
+        "https://modelcontextprotocol.io/docs/2025-11-25/develop/clients/client-best-practices",
+        "https://modelcontextprotocol.io/specification/2025-11-25/changelog.md"
+      ]
+    },
+    {
+      "angle": "protocol",
+      "query": "site:py.sdk.modelcontextprotocol.io/v1 StreamableHTTPSessionManager lowlevel Server list_tools call_tool json_response stateless",
+      "numResults": 5,
+      "urls": [
+        "https://py.sdk.modelcontextprotocol.io/v1/low-level-server/",
+        "https://py.sdk.modelcontextprotocol.io/v1/server/",
+        "https://py.sdk.modelcontextprotocol.io/v1/experimental/tasks-server/",
+        "https://py.sdk.modelcontextprotocol.io/v1/client/",
+        "https://py.sdk.modelcontextprotocol.io/v1/api/"
+      ]
+    },
+    {
+      "angle": "competition",
+      "query": "MCP tool pinning drift legitimate updates false positives trust on first use schema hash mcp scan issues",
+      "numResults": 5,
+      "urls": [
+        "https://security.unboundcompute.com/mcp-tool-pinning/",
+        "https://dev.to/alex_spinov/your-mcp-pin-blocks-every-update-most-never-broke-you-3g66",
+        "https://docs.rs/mcp-armor/latest/mcp_armor/manifest/drift/index.html",
+        "https://dreaming.press/posts/how-to-fingerprint-mcp-tools-detect-drift.html",
+        "https://mcp-hangar.io/learn/digest-pinning"
+      ]
+    },
+    {
+      "angle": "event",
+      "query": "site:hackathons.team AI security September 2026 hackathon rules existing projects submission real target",
+      "numResults": 5,
+      "urls": []
+    },
+    {
+      "angle": "wasmer",
+      "query": "site:github.com/wasmerio/wasmer-sdk Python Windows supported platforms network filesystem capabilities sandbox",
+      "numResults": 5,
+      "urls": []
+    },
+    {
+      "angle": "competition",
+      "query": "site:ai-sdk.dev fingerprintTools detectToolDrift MCP tool drift",
+      "numResults": 5,
+      "urls": [
+        "https://ai-sdk.dev/docs/ai-sdk-core/mcp-tools",
+        "https://ai-sdk.dev/v5/docs/ai-sdk-core/mcp-tools",
+        "https://ai-sdk.dev/docs/reference/ai-sdk-core/create-mcp-client",
+        "https://ai-sdk.dev/v5/cookbook/node/mcp-tools",
+        "https://ai-sdk.dev/docs/foundations/tools"
+      ]
+    },
+    {
+      "angle": "wasmer",
+      "query": "Wasmer SDK GitHub wasmerio wasmer-sdk Python supported Windows network policy mounts",
+      "numResults": 5,
+      "urls": [
+        "https://pypi.org/project/wasmer-sdk/",
+        "https://pypi.org/project/wasmer-sdk/0.2.0/",
+        "https://github.com/wasmerio/wasmer?auto_subscribed=false",
+        "https://github.com/wasmerio/wasmer/pull/6391",
+        "https://github.com/wasmerio/wasmer-python"
+      ]
+    },
+    {
+      "angle": "event",
+      "query": "Hackathons.team September 13 2026 AI security hackathon San Francisco",
+      "numResults": 5,
+      "urls": [
+        "https://luma.com/7a4iutvp",
+        "https://trymimetic.com/events/sf",
+        "https://lu.ma/ai-sf",
+        "https://luma.com/9t4bxc8x",
+        "https://luma.com/tejas-5tht"
+      ]
+    }
+  ],
+  "fetched_urls": [
+    "https://luma.com/7a4iutvp",
+    "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+    "https://github.com/invariantlabs-ai/mcp-scan",
+    "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks",
+    "https://invariantlabs-ai.github.io/docs/mcp-scan/",
+    "https://www.pillar.security/blog/deadbugz-currently-active-mcp-supply-chain-campaign",
+    "https://github.com/modelcontextprotocol/python-sdk",
+    "https://py.sdk.modelcontextprotocol.io/",
+    "https://wasmer.io/posts/wasmer-local-sandboxes-for-ai-agents",
+    "https://github.com/docker/mcp-gateway/blob/fdb82a06/docs/security.md",
+    "https://github.com/stacklok/toolhive/",
+    "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+    "https://modelcontextprotocol.io/specification/2025-11-25/basic/transports",
+    "https://py.sdk.modelcontextprotocol.io/v1/server/",
+    "https://py.sdk.modelcontextprotocol.io/v1/low-level-server/",
+    "https://ojs.aaai.org/index.php/AAAI/article/view/40895",
+    "https://arxiv.org/html/2606.20922",
+    "https://arxiv.org/pdf/2406.13352",
+    "https://ai-sdk.dev/docs/ai-sdk-core/mcp-tools",
+    "https://pypi.org/project/wasmer-sdk/0.1.2/",
+    "https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/pagination",
+    "https://py.sdk.modelcontextprotocol.io/v1/client/"
+  ],
+  "exclusions": [
+    "Unrelated London and Tejas events excluded.",
+    "Third-party roundups not used to substantiate technical claims.",
+    "No attack infrastructure contacted; no competitor installed or scanned.",
+    "No performance or security-rate claims transferred from vendor sources to this prototype."
+  ],
+  "limits": [
+    "Fetch character caps can truncate long pages; the report uses inspected passages rather than claiming full-paper analysis.",
+    "Public event logistics conflicted; user confirmed date, venue and deadline.",
+    "Root SDK docs and repository README differed; pinned v1 line locally tested."
+  ]
+}

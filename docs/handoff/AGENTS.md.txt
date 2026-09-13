@@ -1,0 +1,141 @@
+# Codex handoff: Helix Sentinel
+
+Read this file first, then `EVENT.md` and `SPEC.md`. Implement only what those files specify. Do not add features, tracks, or integrations that are not listed.
+
+You are building a hackathon demo for two people in one day. A working four-beat demo beats a polished platform.
+
+## Goal
+
+Ship a local MCP proxy that fingerprints an MCP server on connect, logs every tool list and tool call, and flags drift:
+
+- new tool
+- description hash change
+- schema hash change
+- first-seen high-risk tool
+- suspicious arguments
+- optional hard deny
+
+The fake MCP is Helix Desk, a plausible internal support-ticket server. It has a clean mode and a poison mode used for the live demo.
+
+## Hard constraints
+
+- Localhost only. Authorized target is Helix Desk on this machine.
+- No real secrets, no real customer data, no third-party MCP servers.
+- No Wasmer, no cloud, no real LLM required for the demo path.
+- No React, Next, Docker, or extra services unless the core path is already done.
+- Do not invent extra tools, dashboards, auth providers, or ML baselines.
+- Keep Python only, except static `web/index.html` + `web/app.js` + `web/style.css`.
+
+## Repo layout (create these, do not invent parallel trees)
+
+```
+helix/
+  server.py          # FastMCP Helix Desk, clean | poison
+  tickets.json       # fake tickets
+sentinel/
+  app.py             # FastAPI: MCP proxy + /api/* + static UI
+  detect.py          # canonicalize, hash, diffs, arg rules
+  db.py              # sqlite events
+  seed.json          # baseline contracts + sample call history
+web/
+  index.html
+  app.js
+  style.css
+scripts/
+  demo_calls.py      # plays the four demo beats against the proxy
+  reset.sh           # wipe db, restart baseline
+README.md
+SPEC.md
+EVENT.md
+AGENTS.md
+requirements.txt
+.env.example
+```
+
+## Implementation order (do not skip ahead)
+
+1. Helix Desk in clean mode: `list_tickets`, `get_ticket`, `add_comment` over Streamable HTTP on `:8765`.
+2. `detect.py` + `db.py` + `seed.json` load. Unit-testable functions. No network.
+3. Sentinel FastAPI on `:8787`:
+   - reverse-proxy MCP HTTP to Helix
+   - intercept `tools/list` and `tools/call`
+   - persist events
+   - `GET /api/events`, `GET /api/baseline`, `POST /api/reset`
+4. Poison mode on Helix (`HELIX_MODE=poison`): after 3 tool calls, mutate `add_comment` and add `export_workspace`.
+5. Enforce mode on Sentinel (`SENTINEL_ENFORCE=1`) returns an MCP error instead of forwarding denied calls.
+6. Single-page timeline UI on `/`.
+7. `scripts/demo_calls.py` that runs beats 1-4 and prints pass/fail.
+
+Stop after those seven. If time remains: description diff in the UI expand panel, session risk points, reset button.
+
+## Shared contract
+
+- Clients talk only to `http://127.0.0.1:8787`.
+- Helix listens on `http://127.0.0.1:8765`.
+- `HELIX_MODE=clean|poison` (default clean).
+- `SENTINEL_ENFORCE=0|1` (default 0: log and flag, still forward).
+- Baseline comes from `sentinel/seed.json` at boot, not from waiting for live traffic.
+- Fake secret string if needed: `FAKE_SSH_KEY=not-a-real-key`.
+
+## Hash rules
+
+Fingerprint each tool as SHA-256 of canonical JSON:
+
+```
+{"description": "...", "inputSchema": {...}, "name": "..."}
+```
+
+- Sort object keys recursively.
+- No extra whitespace.
+- Hash name + description + inputSchema together, then also store description-only and schema-only hashes so the UI can say which part drifted.
+
+## Detection kinds
+
+Use these exact event `kind` strings:
+
+- `BASELINE_LOCKED`
+- `TOOLS_LIST`
+- `TOOL_CALL`
+- `NEW_TOOL`
+- `REMOVED_TOOL`
+- `DESC_HASH_MISMATCH`
+- `SCHEMA_HASH_MISMATCH`
+- `ARG_ANOMALY`
+- `FIRST_SEEN_HIGH_RISK`
+- `PRIVILEGE_EXPAND`
+- `DENIED`
+
+One inbound MCP message may emit multiple events (a call can be `TOOL_CALL` + `ARG_ANOMALY` + `DENIED`).
+
+## Arg anomaly heuristics
+
+Flag if any argument key or string value contains:
+
+- `~/.ssh`, `.env`, `mcp.json`, `/etc/passwd`, `id_rsa`
+- `file://`, `169.254.169.254`, `meta-data`
+- keys named `sidenote`, `note`, `debug_context`, `system_prompt`
+
+High-risk tools: any name containing `export`, `workspace`, `shell`, `exec`, `file`, `env`, `credential`, `secret`.
+
+`export_workspace` is always high-risk and never in the clean baseline.
+
+## Code style
+
+- Small files, typed functions where easy, no abstract factories.
+- Print useful logs with timestamps.
+- If MCP protocol details are ambiguous, prefer making `scripts/demo_calls.py` work against the proxy even if a full MCP client is imperfect. The demo script is the source of truth for the live show.
+- If Streamable HTTP wiring eats time, it is acceptable to give the proxy a simple JSON POST API that mirrors tools/list and tools/call and have both Helix and `demo_calls.py` use that, while still calling it MCP in the UI. Prefer real MCP if it works in the first hour.
+
+## Done means
+
+```
+uvicorn helix.server:app --port 8765
+uvicorn sentinel.app:app --port 8787
+python scripts/demo_calls.py
+```
+
+Beat 1 produces only clean `TOOL_CALL` / `TOOLS_LIST` events.
+Beat 2 produces `DESC_HASH_MISMATCH` and `SCHEMA_HASH_MISMATCH`.
+Beat 3 produces `NEW_TOOL` and `ARG_ANOMALY`.
+Beat 4 with enforce produces `DENIED`.
+UI at `http://127.0.0.1:8787/` shows those rows on a timeline without refreshing by hand more than once (polling every 1s is fine).

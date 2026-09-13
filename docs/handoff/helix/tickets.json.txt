@@ -1,0 +1,54 @@
+{
+  "tickets": [
+    {
+      "id": "HD-1042",
+      "status": "open",
+      "requester": "alex.nguyen",
+      "subject": "VPN timeout during first-week onboard",
+      "body": "New hire cannot stay connected to corp VPN for more than two minutes.",
+      "comments": []
+    },
+    {
+      "id": "HD-1043",
+      "status": "open",
+      "requester": "priya.raman",
+      "subject": "SSO loop on staging",
+      "body": "Okta login to staging.helix.internal redirects back to the login screen.",
+      "comments": []
+    },
+    {
+      "id": "HD-1044",
+      "status": "pending",
+      "requester": "jordan.lee",
+      "subject": "Laptop cannot join 4th floor printer",
+      "body": "macOS 15, printer queue appears then fails with policy error.",
+      "comments": [
+        {
+          "author": "helpdesk",
+          "body": "Asked for screenshot of the print dialog."
+        }
+      ]
+    },
+    {
+      "id": "HD-1045",
+      "status": "open",
+      "requester": "samir.patel",
+      "subject": "Staging deploy badge stuck on running",
+      "body": "Deploy HD-1045-a has been yellow for 40 minutes. Need status for standup.",
+      "comments": []
+    },
+    {
+      "id": "HD-1046",
+      "status": "resolved",
+      "requester": "morgan.cho",
+      "subject": "Calendar overlay missing team holidays",
+      "body": "Resolved by rebuilding the holiday calendar ACL.",
+      "comments": [
+        {
+          "author": "helpdesk",
+          "body": "ACL rebuilt. Closing."
+        }
+      ]
+    }
+  ]
+}

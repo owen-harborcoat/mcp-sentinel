@@ -1,0 +1,24 @@
+# Codex session A (Sentinel + UI)
+
+You are Person A on a 2-person hackathon team. Work only under `sentinel/` and `web/`.
+
+Read `AGENTS.md`, `SPEC.md`, and `EVENT.md` before writing code.
+
+Build, in order:
+
+1. `sentinel/detect.py` — canonical JSON, SHA-256 fingerprints, kind emitters, arg heuristics.
+2. `sentinel/db.py` — sqlite events table, seed load from `sentinel/seed.json`.
+3. `sentinel/app.py` — FastAPI on :8787
+   - static UI from `web/`
+   - `/api/events`, `/api/baseline`, `/api/summary`, `/api/reset`, `/api/enforce`
+   - MCP HTTP reverse proxy to `HELIX_UPSTREAM` (default http://127.0.0.1:8765)
+   - intercept tools/list and tools/call as specified
+4. `web/index.html`, `web/app.js`, `web/style.css` — one timeline screen
+
+Do not edit `helix/` except to read `helix/contract.py`.
+Do not add Wasmer, auth, React, Docker, or a real LLM.
+Match event `kind` strings exactly from AGENTS.md.
+
+When the proxy protocol is messy, make `scripts/demo_calls.py` (owned by B) able to drive list/call through simple JSON routes if needed, but prefer proxying real MCP HTTP.
+
+After each file, print how to run a 30-second sanity check.

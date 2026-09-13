@@ -1,0 +1,76 @@
+{
+  "tools": [
+    {
+      "name": "list_tickets",
+      "description": "List internal Helix Desk support tickets. Filter by status if provided.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "open, pending, resolved, or all"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Max tickets to return",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "name": "get_ticket",
+      "description": "Fetch one Helix Desk ticket by id, including comments.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "Ticket id such as HD-1042"
+          }
+        },
+        "required": ["ticket_id"]
+      }
+    },
+    {
+      "name": "add_comment",
+      "description": "Add a helpdesk comment to an existing ticket.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "Ticket id such as HD-1042"
+          },
+          "body": {
+            "type": "string",
+            "description": "Comment visible to the requester and agents"
+          }
+        },
+        "required": ["ticket_id", "body"]
+      }
+    }
+  ],
+  "sample_calls": [
+    {"tool": "list_tickets", "args": {"status": "open", "limit": 10}},
+    {"tool": "list_tickets", "args": {"status": "open", "limit": 5}},
+    {"tool": "list_tickets", "args": {"status": "pending"}},
+    {"tool": "list_tickets", "args": {"status": "resolved"}},
+    {"tool": "list_tickets", "args": {"status": "all", "limit": 20}},
+    {"tool": "list_tickets", "args": {"limit": 10}},
+    {"tool": "list_tickets", "args": {"status": "open"}},
+    {"tool": "list_tickets", "args": {"status": "open", "limit": 3}},
+    {"tool": "list_tickets", "args": {"status": "pending", "limit": 10}},
+    {"tool": "list_tickets", "args": {"status": "all"}},
+    {"tool": "list_tickets", "args": {"limit": 5}},
+    {"tool": "list_tickets", "args": {"status": "open", "limit": 15}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1042"}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1043"}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1044"}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1045"}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1046"}},
+    {"tool": "get_ticket", "args": {"ticket_id": "HD-1042"}},
+    {"tool": "add_comment", "args": {"ticket_id": "HD-1042", "body": "Asked requester for the VPN client version."}},
+    {"tool": "add_comment", "args": {"ticket_id": "HD-1043", "body": "Reproduced the SSO loop on staging."}}
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "archive": "helix-sentinel.zip",
+  "sha256": "65085a71b1f09bf7efe5f609b18cc11551f3cc9e042cef2f5342997185f80356",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 245,
+      "sha256": "6f8d95c3a5fccc2fa10aefeb13f1d9b9a9a0d2ad7033f0d189f569df1662f739"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 140,
+      "sha256": "6f829b67b1f602dce70b19a7366431210441b571253a7e5bfacbe20fa7ef3753"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 5255,
+      "sha256": "74ebeda59a5dfe0ecf24c968c22b452dc33647c76851ead00003cb50fc565538"
+    },
+    {
+      "path": "CODEX_PROMPT_A.md",
+      "bytes": 1145,
+      "sha256": "b72c30f377aac944f455f1c13374ced7b73a2c992370084b9ef10f913767cb3b"
+    },
+    {
+      "path": "CODEX_PROMPT_B.md",
+      "bytes": 1419,
+      "sha256": "bf8234e9856634ece970cd91980011efca41c0668f47fe16573b2bc7cd865ab4"
+    },
+    {
+      "path": "EVENT.md",
+      "bytes": 1703,
+      "sha256": "a5edf01786ec4d6652fde1d0aebe0e2ddef88e07b99cbcb65095876cb1ad7530"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1414,
+      "sha256": "04e8ce6c0e96b8f208e53f6e13f338044c3ca5d10d63cee597f13a39b13341f9"
+    },
+    {
+      "path": "SPEC.md",
+      "bytes": 6413,
+      "sha256": "af320917e8606e6ddf5911b9b607524a9ea7f4a2f2b80edbfaa154897603fc9a"
+    },
+    {
+      "path": "helix/__init__.py",
+      "bytes": 22,
+      "sha256": "27374a3267944daaf611f39e8d49c3ff460ec4c82dfd6bc45d1c156cba13daf2"
+    },
+    {
+      "path": "helix/contract.py",
+      "bytes": 3215,
+      "sha256": "0af1eb832099476f09a9711c3b693c5e956f58c1d7c80deb4c29b80623a97ffa"
+    },
+    {
+      "path": "helix/tickets.json",
+      "bytes": 1509,
+      "sha256": "08b3aa815fc5f4d338329eb7af5cdd0498dcea315d5117f33d160ee8a2ca9bb2"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 121,
+      "sha256": "489a016de5731844759ec1e825248f50c3aed2d76342863f2416cfa54ac11597"
+    },
+    {
+      "path": "scripts/reset.sh",
+      "bytes": 361,
+      "sha256": "94753a64dd97e7c41425555083c4ecc0e8d752b8bc7ad65029b7c4bf159345b8"
+    },
+    {
+      "path": "sentinel/__init__.py",
+      "bytes": 37,
+      "sha256": "1d601eefe9946f14b7989219dc12a41a816d4933272fb1286d07ff4196b8e65a"
+    },
+    {
+      "path": "sentinel/seed.json",
+      "bytes": 2783,
+      "sha256": "8969a4aa9d1e7eac96d39b0a6eadc66e934d575b80e9bc270723515ac540317f"
+    },
+    {
+      "path": "web/.gitkeep",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

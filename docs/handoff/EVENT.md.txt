@@ -1,0 +1,46 @@
+# Event context
+
+## Hackathon
+
+- Name: AI Security Hackathon, by Hackathons.team
+- Page: https://luma.com/7a4iutvp
+- When: Sunday, September 13, 2026
+- Where: Entrepreneurs First, 501 Folsom St, San Francisco
+- Schedule: doors 9:30am, build 10:00am-6:00pm, demos from 6:00pm Pacific
+- Team size: 1-5. This team is 2.
+- Theme: build anything agentic with security at its core. Build an agent, break something responsibly, or create a tool that makes AI safer.
+- Ideas are wide open. Bring something worth showing.
+
+## Prizes
+
+Cash: 1st $1000, 2nd $500, 3rd $250.
+
+Sponsor tracks (do not build for these unless the core demo is done):
+
+- Wasmer SDK track: credits for projects that use the Wasmer sandbox SDK. Out of scope for this repo.
+- Tenki Cloud credits. Out of scope for this repo.
+
+## Judging rubric
+
+- Working demo on a real, authorized target
+- Technical depth
+- Originality
+- Shock factor
+- Progress made on the day
+- Sponsor tracks also score how well you used the sponsor product (not our plan)
+
+Implications for this project:
+
+- Live demo, not slides.
+- Target is our own Helix Desk MCP. Never point the tool at anyone else's server.
+- Shock: an already-authenticated MCP changes its tools after you trusted it.
+- Depth: hashes of name+description+schema, not just tool-name allowlists.
+- Logging is part of the product. The timeline is the proof.
+
+## Audience and talk
+
+Judges will know MCP tool poisoning, rug-pulls, Deadbugz-style delayed payloads, and "excessive agency." One sentence for the talk:
+
+"Once an MCP is connected, it does not need a new login to change what it is allowed to mean. Sentinel freezes the contract and shows the drift."
+
+Four-minute demo. No architecture tour.

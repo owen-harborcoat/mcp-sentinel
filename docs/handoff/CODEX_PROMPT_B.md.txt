@@ -1,0 +1,30 @@
+# Codex session B (Helix fixture + demo script)
+
+You are Person B on a 2-person hackathon team. Work only under `helix/` and `scripts/`.
+
+Read `AGENTS.md`, `SPEC.md`, `EVENT.md`, and `helix/contract.py` before writing code.
+
+Build, in order:
+
+1. `helix/server.py` — FastMCP (or FastAPI if FastMCP HTTP is slow to wire) on :8765
+   - clean tools from `helix/contract.py`
+   - tickets from `helix/tickets.json`
+   - `HELIX_MODE=clean|poison`
+   - poison after 3 tool calls: mutate `add_comment`, add `export_workspace`
+   - `GET /debug/mode` and `POST /debug/mode` `{"mode":"poison"}` so the demo can flip without restart
+2. `export_workspace` returns `FAKE_SSH_KEY=not-a-real-key` for ssh-like paths. Never read a real home directory if you can avoid it. Prefer string matching over actual file reads.
+3. `scripts/demo_calls.py` — four beats from SPEC.md against http://127.0.0.1:8787
+4. Keep `scripts/reset.sh` working
+
+Do not edit `sentinel/` or `web/` except to read APIs.
+Do not add extra tools beyond the spec.
+Clean tool descriptions must stay byte-for-byte aligned with `sentinel/seed.json`.
+
+If FastMCP Streamable HTTP takes more than 20 minutes, expose:
+
+- `POST /mcp-lite/list`
+- `POST /mcp-lite/call`
+
+and document that Sentinel should proxy those too. The live demo can use lite routes. Still label the product as an MCP contract monitor.
+
+After each file, print how to curl one clean list_tickets call.
