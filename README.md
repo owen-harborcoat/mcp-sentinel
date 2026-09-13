@@ -1,4 +1,4 @@
-# Helix Sentinel
+# MCP Sentinel
 
 Sandbox MCP servers in Wasmer, execute tests, and review security findings in a
 persistent monitoring dashboard. The scanning agent decides whether observations
@@ -9,6 +9,14 @@ MCP SDK client tests, SQLite event history, scan evidence, agent assessment adap
 alert lifecycle, and notification previews. The local dashboard works without API
 keys using a visibly labeled deterministic demo assessor. OpenRouter is the preferred live assessor; Gemini remains optional. Notification
 adapters are tested with mocked providers. See RESUME.md for live verification.
+
+**Current assessment:** the 30-run adversarial evaluation produced 14 expected verdicts,
+8 assessment errors, 7 missed malicious targets (3 coverage gaps), and 1 false positive.
+The detector is not consistently reliable. See [full results](docs/EVALUATION.md).
+
+The dashboard now has compact alert tables and a scrollable event timeline. Twelve
+owned test cases are selectable with Wasmer. OpenRouter reviews fixed test evidence;
+it does not autonomously choose or execute attacks.
 
 ## Run
 
@@ -27,7 +35,7 @@ WASMER_NODE to a Node 24+ executable if PATH points to an older version.
 The first scan downloads the pinned public Wasmer Python package; later scans use
 the runtime cache. No Wasmer API key is required for local SDK execution.
 
-Select **Wasmer sandbox / Demo assessor**, then run the four scenarios:
+Select **Wasmer / Demo (no model)** for the original four deterministic development cases:
 
 | Scenario | Execution evidence | Demo assessment |
 |---|---|---|
@@ -49,7 +57,7 @@ selects the labeled demo assessor. Gemini remains available as an alternative.
 - [Corrected product/research direction](docs/research/PRODUCT_REVISION.md)
 - [Feature A brief](CODEX_PROMPT_A.md) / [Feature B brief](CODEX_PROMPT_B.md)
 - [Verification and remaining work](RESUME.md)
-- [OpenRouter setup and live fixture results](docs/OPENROUTER.md)
+- [OpenRouter setup](docs/OPENROUTER.md), [adversarial evaluation](docs/EVALUATION.md)
 
 A owns sandbox execution, test coverage and scan-detail UI. B owns agent assessment,
 alerts, timeline and notification channels. Both are full stack. Existing branch
@@ -60,14 +68,17 @@ names are retained; merge the updated main before beginning work.
 ```sh
 uv run --frozen ruff check .
 uv run --frozen pytest -q
+node --test tests/timeline.test.mjs
 uv run --frozen python -m scripts.protocol_smoke
 ```
 
 Real Wasmer tests are opt-in: PowerShell
 `$env:RUN_WASMER_TESTS='1'; uv run --frozen pytest tests/test_wasmer.py -q`;
 POSIX `RUN_WASMER_TESTS=1 uv run --frozen pytest tests/test_wasmer.py -q`.
-These tests execute all four scenarios without contacting a model or messaging provider.
-CI includes them on Windows and Linux; only Windows has been run locally.
+Six collector tests execute real Wasmer cases without contacting a model or messaging provider.
+Run the explicit live assessment with `uv run --frozen python -m scripts.evaluate`;
+this makes 30 OpenRouter calls and is not part of CI.
+CI includes collector checks on Windows and Linux; only Windows has been run locally.
 
 ## Scope and credentials
 

@@ -37,9 +37,17 @@ class Judgment(BaseModel):
 
 class ScanRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    scenario: Literal["clean", "benign", "poison", "behavior"] = "poison"
+    scenario: Literal["clean", "benign", "poison", "behavior", "ticket_update", "quoted_report",
+                      "shadow", "handoff", "encoded", "audit_override", "write_retarget",
+                      "late_trigger"] = "poison"
     runtime: Literal["wasmer", "demo"] = "wasmer"
     assessor: Literal["openrouter", "gemini", "demo"] = "demo"
+
+    @model_validator(mode="after")
+    def require_real_execution(self):
+        if self.scenario not in ('clean', 'benign', 'poison', 'behavior') and self.runtime == 'demo':
+            raise ValueError('Extended cases require Wasmer execution')
+        return self
 
 
 class AlertAction(BaseModel):

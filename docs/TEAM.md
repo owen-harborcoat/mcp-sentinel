@@ -8,7 +8,7 @@ updated main into each branch before continuing. No remote has been configured.
 |---|---|---|
 | End-to-end outcome | Run meaningful MCP tests and inspect execution evidence | Review agent findings and manage alerts/notifications |
 | Backend | scripts/wasmer_stdio.mjs, helix/sandbox_server.py, sentinel/scanner.py | sentinel/assessor.py, store.py, notifications.py |
-| UI | Scan workbench and evidence detail | Alert cards, timeline, filters and notification status |
+| UI | Scan workbench and evidence detail | Compact alert table, timeline, filters and notification status |
 | Tests | tests/test_wasmer.py, fixture alignment and coverage | tests/test_alerts.py, agent evaluation and delivery failures |
 | Existing branch | feature/contract-monitor | feature/attack-lab |
 
@@ -21,15 +21,15 @@ starting point, not a request to rewrite from scratch.
 ## Remaining tickets
 
 A:
-- Add more meaningful read/write tool tests and expose pass/fail details.
-- Improve before/after evidence presentation and show per-test timing.
+- Extend write/readback tests to locate unintended writes; the model missed all three missing-write cases.
+- Broaden session lengths: current six-call tests never exposed the call-ten attack.
 - Define an explicit approved-target manifest before accepting additional MCPs.
 - Verify Wasmer on the teammate's OS and package cold-start behavior.
 
 B:
-- Configure the model key and evaluate all four scenarios with OpenRouter.
-- Check rationale/citations and tune false positives with benign changes.
-- Polish timeline/alert filtering; unchanged controls now retain focus during polling.
+- OpenRouter is configured. Review the 30-run results in EVALUATION.md; eight assessment errors need safe diagnostics.
+- Address assessor prompt injection (one exact clean-verdict override) and test fresh holdout cases.
+- Define actionable-alert policy for quoted attack reports and validate severity consistency. Timeline/alert filtering is implemented.
 - Configure free Telegram after previews; validate one explicitly authorized send.
 - Keep provider acceptance distinct from delivered status.
 

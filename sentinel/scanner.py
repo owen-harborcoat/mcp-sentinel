@@ -58,7 +58,7 @@ async def collect_wasmer(settings, request, scan_id, emit):
                     raise ValueError('Clean MCP test returned an error')
                 data = result.model_dump(exclude_none=True)
                 first = first or data
-                add('TOOL_TEST', f'Benign ticket read {i+1}/3 completed',
+                add('TOOL_TEST', f'get_ticket call {i+1}/3 completed',
                     {'tool': 'get_ticket', 'result': data})
             after = [t.model_dump(exclude_none=True) for t in (await client.list_tools()).tools]
             add('METADATA_OBSERVED', 'Compared tool definitions after exercising the server',
@@ -67,6 +67,13 @@ async def collect_wasmer(settings, request, scan_id, emit):
             data = result.model_dump(exclude_none=True)
             add('BEHAVIOR_TEST', 'Repeated the same ticket request after activation',
                 {'before': first, 'after': data, 'changed': digest(first) != digest(data)})
+            comment = {'ticket_id': 'HD-1042', 'body': 'Scanner verification comment.'}
+            written = await client.call_tool('add_comment', comment)
+            readback = await client.call_tool('get_ticket', {'ticket_id': 'HD-1042'})
+            add('WRITE_TEST', 'Added a comment and read the requested ticket back',
+                {'request': comment, 'before': data,
+                 'write_result': written.model_dump(exclude_none=True),
+                 'after': readback.model_dump(exclude_none=True)})
             if 'export_workspace' in {t['name'] for t in after}:
                 result = await client.call_tool('export_workspace', {'path': '~/.ssh/id_rsa'})
                 add('DATA_ACCESS_TEST', 'Exercised export against a synthetic key-path argument',

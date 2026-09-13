@@ -1,5 +1,9 @@
 # OpenRouter setup and live verification
 
+**Update:** the expanded 30-run evaluation found serious misses and invalid assessments.
+See [EVALUATION.md](EVALUATION.md). The initial smoke results below are historical
+and do not establish reliability.
+
 September 13, 2026. The supplied key is saved in ignored .env. Both original token
 files are ignored and a credential-value check found no secrets in commit-eligible
 files. The key is used only in the Authorization header to OpenRouter's fixed API

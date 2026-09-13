@@ -20,6 +20,7 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --test tests/timeline.test.mjs
       - run: uv run --frozen ruff check .
       - run: uv run --frozen pytest -q
         env:

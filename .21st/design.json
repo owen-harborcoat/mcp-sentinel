@@ -1,0 +1,25 @@
+{
+  "project": "MCP Sentinel",
+  "framework": "Vanilla JavaScript, HTML, CSS; FastAPI",
+  "decisions": [
+    {
+      "date": "2026-09-13",
+      "choice": "User-directed compact monochrome monitoring dashboard",
+      "palette": {
+        "background": "#000",
+        "foreground": "#fff",
+        "secondary": "white with reduced opacity",
+        "warning": "#e4bc48",
+        "emergency": "#e45757"
+      },
+      "constraints": [
+        "Warning and emergency colors appear only on event timeline branches and legend.",
+        "Remove hero, slogans, numbered stages and explanatory section subtext.",
+        "Compact data tables; details appear on demand.",
+        "Use smooth anchor scrolling and respect reduced motion.",
+        "Timeline positions represent event order, with actual timestamps; spacing is not elapsed time."
+      ],
+      "inspiration": "21st modern timeline inspected through Exa; implemented with existing native DOM/SVG primitives."
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 """Local scanning dashboard and alerts API."""
 import asyncio
+import json
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
@@ -30,7 +31,7 @@ def create_app(settings=None):
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
 
-    app = FastAPI(title='Helix Sentinel', version='0.2.0', lifespan=lifespan)
+    app = FastAPI(title='MCP Sentinel', version='0.3.0', lifespan=lifespan)
     app.state.store, app.state.service = store, service
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost'])
 
@@ -71,6 +72,11 @@ def create_app(settings=None):
                 'wasmer_sdk_installed': (ROOT / 'node_modules/@wasmer/sdk').exists(),
                 'notification_min_severity': 'high',
                 'sms_note': 'Custom Twilio SMS is not available on the current free trial.'}
+
+    @app.get('/api/scenarios')
+    def scenarios():
+        cases = json.loads((ROOT / 'helix/scenarios.json').read_text(encoding='utf-8'))
+        return [{'id': key, 'label': value['label']} for key, value in cases.items()]
 
     @app.get('/api/overview')
     def overview():

@@ -31,7 +31,7 @@ async def deliver(store, settings, alert, channel, transport=None):
                     f'{channel} preview for alert #{alert["id"]}; nothing sent')
         return attempt
     # Never send model-written descriptions, arguments, or payloads to external channels.
-    text = f'Helix Sentinel: {alert["severity"].upper()} alert #{alert["id"]}. Review the local dashboard.'
+    text = f'MCP Sentinel: {alert["severity"].upper()} alert #{alert["id"]}. Review the local dashboard.'
     try:
         async with httpx.AsyncClient(timeout=12, transport=transport, follow_redirects=False) as client:
             if channel == 'telegram':

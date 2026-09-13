@@ -1,4 +1,4 @@
-# Helix Sentinel build specification
+# MCP Sentinel build specification
 
 The product is an MCP sandbox testing and observability workspace. It runs an MCP
 inside Wasmer, exercises its tools, collects behavioral and metadata evidence,

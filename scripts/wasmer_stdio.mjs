@@ -6,10 +6,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const [scenario, reportPath] = process.argv.slice(2);
-if (!['clean', 'benign', 'poison', 'behavior'].includes(scenario) || !reportPath) {
+const root = fileURLToPath(new URL('../', import.meta.url));
+const scenarios = await readFile(join(root, 'helix/scenarios.json'), 'utf8');
+if (!Object.hasOwn(JSON.parse(scenarios), scenario) || !reportPath) {
   throw new Error('Expected fixed scenario and internal report path');
 }
-const root = fileURLToPath(new URL('../', import.meta.url));
 const version = Number(process.versions.node.split('.')[0]);
 if (version < 24) throw new Error('Use Node 24+ for the pinned Wasmer Python package');
 const temp = await mkdtemp(join(tmpdir(), 'helix-canary-'));
@@ -40,6 +41,7 @@ print(json.dumps(results))
       'server.py': await readFile(join(root, 'helix/sandbox_server.py'), 'utf8'),
       'contracts.json': await readFile(join(root, 'helix/sandbox_contracts.json'), 'utf8'),
       'tickets.json': await readFile(join(root, 'helix/tickets.json'), 'utf8'),
+      'scenarios.json': scenarios,
       'guest-only.txt': 'synthetic-guest-canary', 'probe.py': probe,
     },
   });

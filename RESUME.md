@@ -1,58 +1,33 @@
-# Handoff: Wasmer scans and agent-reviewed alerts
+# MCP Sentinel handoff — September 13, 2026
 
-## Current update: OpenRouter configured and verified
+## Current state
 
-OpenRouter replaces direct Gemini as the preferred live assessor. The supplied
-key is stored in ignored .env and its original text file is also ignored. The
-local environment and .env.example pin dots-studio/dots-3-note-preview:free.
-This model correctly classified all four fixture scenarios in live Wasmer scans:
-clean/benign cleared; poison/behavior flagged. 35 automated tests passed.
-See docs/OPENROUTER.md for scan IDs, caveats and the initial random-router miss.
-The miss remains in history; generated severity/rationale are not security proof.
-Telegram/SMS remain preview-only. No Gemini key is needed. Model inference was
-exercised live; external messaging was not. Browser defaults to configured OpenRouter.
+The dashboard redesign and adversarial evaluation are complete. Product name: MCP Sentinel. Flat black/white interface, compact alert table, no hero or numbered stages, smooth sidebar navigation, scrollable event timeline with yellow/red divergence branches. Live SQLite data drives the page; evidence and provenance open on demand.
 
-The initial build checkpoint below is retained as historical context; the model
-configuration and verification above supersede its outstanding Gemini-key step.
+**Detection is not reliable yet.** Thirty repeated live Wasmer/OpenRouter runs produced 14 matching expected verdicts, 8 assessment errors, 7 missed malicious targets (including 3 scanner coverage gaps), and 1 false positive under the declared policy. One assessor-targeted injection dictated the exact clean JSON response. Read [docs/EVALUATION.md](docs/EVALUATION.md) and the complete [run ledger](docs/evaluation-results.json). Earlier four-case smoke successes do not establish consistency.
 
-## Initial build checkpoint
+The current collector executes fixed tests through an actual MCP SDK client against an actual Wasmer Python guest. Twelve owned fixture scenarios are selectable. The model reviews evidence; it does not autonomously plan or execute tests. Data and secrets inside fixtures are synthetic. No arbitrary MCP onboarding, scheduler, autonomous attacker, cloud deployment or production gateway is implemented.
 
-Current product direction is the user's broader MCP sandbox/testing/monitoring
-workspace. The former metadata-quarantine pivot is superseded by SPEC.md and
-docs/research/PRODUCT_REVISION.md. Original ZIP reference files remain intact.
+OpenRouter is configured from the user-supplied ignored key file and .env; the model remains dots-studio/dots-3-note-preview:free. No Gemini key is needed. Wasmer runs locally with SDK 0.11.0 / python/python@=3.13.5 / Node 24.19.0. The stored Wasmer token is reserved for future cloud work and is not used by local execution.
 
-Implemented:
-- Real local Wasmer Python guest, four scenarios, official MCP SDK test client.
-- Persisted scan/evidence/events, Gemini structured assessment adapter and
-  explicitly labeled deterministic assessor for keyless development.
-- Dashboard, alert deduplication, severity/lifecycle, evidence dialog, timeline,
-  browser notifications, Telegram and Twilio preview/live adapters.
-- Fixed-recipient minimal messages, atomic attempts, no retry for uncertain sends.
-- Dummy provider configuration; user-provided Wasmer token saved in ignored .env
-  and original token file excluded from Git. Local SDK does not consume that key.
+## Verification
 
-Verification:
-- Four real Wasmer scenario tests passed on Windows with bundled Node 24.19.0 and
-  Wasmer SDK 0.11.0 / python/python@=3.13.5.
-- Node 22.14 fails this pinned guest; use Node 24+.
-- 27 tests passed including all four real Wasmer cases, unit/API tests and mocked
-  Gemini/Telegram/Twilio responses. Ruff, JS syntax and legacy SDK protocol smoke passed.
-- Browser verified real poison and benign scans, evidence/isolation details,
-  notification preview, acknowledge/resolve/reopen and timeline search. Polling
-  now preserves unchanged controls instead of rebuilding them. Responsive layout
-  checked at 390px requested viewport with no document horizontal overflow.
-- Local server: http://127.0.0.1:8787. API keys/notifications were not exercised live.
-- Wasmer filesystem/network probe results are specific observations, not universal
-  isolation guarantees. All data and the only accepted MCP target are synthetic.
+- 37 Python tests passed, including six real Wasmer collector cases; two upstream deprecation warnings.
+- Two JavaScript timeline tests passed; Ruff passed.
+- Thirty live model assessments recorded without replacing failures. All collected Wasmer evidence.
+- Separate UI-launched support-handoff case completed in 28.9 seconds, high alert #4.
+- Browser verified event selection/evidence inspection, timeline spacing, alert search and resolve/reopen of the demo alert. Mobile 390px had no document horizontal overflow; smooth scroll is enabled.
+- Telegram/Twilio remain preview-only. No external notification was sent. Provider adapter tests use mocked responses.
+- Local app remains running at http://127.0.0.1:8787.
 
-Next:
-1. Teammates merge updated main; retain existing branch names.
-2. Set GEMINI_API_KEY in .env, restart server, evaluate all four live agent verdicts.
-3. Optional free Telegram: set bot token/chat ID, preview then explicitly enable
-   LIVE_NOTIFICATIONS=1. Optional Twilio requires a custom-SMS-eligible account.
-4. A deepens executable tests/evidence UI. B improves investigations and validates
-   agent behavior. See CODEX_PROMPT_A/B and docs/TEAM.md.
-5. Rehearse by 5 PM; stop building at 6 PM September 13, 501 Folsom.
+## Feature ownership and next work
 
-No remote publication, deployment or external message has been performed.
-No arbitrary-target onboarding or scheduled fleet scans are implemented yet.
+A (feature/contract-monitor): strengthen executable read/write postconditions, broaden session lengths, collect evidence of unintended writes, and build approved-target onboarding.
+
+B (feature/attack-lab): harden assessor handling of tool-output injection, capture safe structured failure diagnostics, validate clear verdicts and quoted-content policy, and evaluate fresh holdout cases. Monitoring UI and lifecycle are implemented.
+
+Both teammates are full stack. Coordinate shared web/app.js, sentinel/app.py and model changes; merge main before starting. See docs/TEAM.md. Do not optimize on this test suite and then report those same cases as independent proof of improvement.
+
+Telegram is optional for the demo: configure bot token/chat ID and explicitly enable LIVE_NOTIFICATIONS only for an authorized send. Twilio is not necessary. The core demo is real Wasmer execution, evidence, model assessment, timeline, and alert review—with detector limitations disclosed.
+
+No remote publication, deployment or external message has been performed. Original ZIP files in docs/handoff remain intact. Building ends at 6 PM Pacific at Entrepreneurs First, 501 Folsom.
