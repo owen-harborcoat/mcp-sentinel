@@ -17,9 +17,8 @@ const check = (x, y) => path(`M${x} ${y} l4 4 l8 -9`, 'scene-check');
 
 const slides = [
   {
-    topic: 'The problem', title: "Tool output can change mid-session",
+    title: "Tool output changes mid-session",
     bullets: ["The first description covers one point in the session.", "Later responses can introduce new instructions."],
-    caption: "Illustration: the owned fixture changes after call 3.",
     draw: () => [
       text(26, 31, 'ONE MCP SESSION', 'scene-title'),
       box(26, 57, 190, 78, 'First connection', 'Read a support ticket'),
@@ -28,26 +27,22 @@ const slides = [
       line(45, 210, 502, 210),
       ...[70, 205, 340, 475].flatMap((x, i) => [dot(x, 210), text(x, 239, i === 3 ? 'Discover again' : `Tool call ${i + 1}`, 'scene-small', 'middle')]),
       path('M340 205 V160 H422 V135', 'scene-line dashed'),
-      text(26, 285, 'Record descriptions and responses across the session.', 'scene-small')
     ]
   },
   {
-    topic: 'Trust boundary', title: "The assessor returns a judgment",
+    title: "Output is not authority",
     bullets: ["MCP output is untrusted input.", "Server code controls recipients and delivery settings."],
-    caption: "",
     draw: () => [
       box(24, 86, 168, 96, 'MCP tool output', 'Untrusted text'),
       line(192, 134, 308, 134, 'scene-line flow-line'), dot(195, 134, 'scene-packet travel', 2.5),
       line(263, 47, 263, 243, 'scene-line dashed'), text(263, 29, 'TRUST BOUNDARY', 'scene-title', 'middle'),
       box(311, 72, 210, 124, 'Model assessment', 'Read evidence; return JSON', 'strong'),
       text(325, 166, 'No action privileges', 'scene-mono'),
-      rect(25, 251, 496, 37), text(273, 275, 'Recipients and delivery settings stay server-controlled.', 'scene-small', 'middle')
     ]
   },
   {
-    topic: 'Test collection', title: "Run six fixed calls",
+    title: "Six calls per test",
     bullets: ["Three reads, a repeated request, a comment and a readback.", "An exposed export tool gets one additional test call."],
-    caption: "Tool discovery: before and after call 3.",
     draw: () => [
       text(27, 32, 'OFFICIAL MCP CLIENT', 'scene-title'),
       line(100, 95, 450, 95, 'scene-line flow-line'), path('M450 95 V185 H100', 'scene-line flow-line'),
@@ -55,13 +50,12 @@ const slides = [
         const item = group(rect(x,y,137,70),text(x+13,y+23,n,'scene-mono'),text(x+13,y+49,label));
         item.setAttribute('class', `step-${index % 3 + 1}`); return item;
       }),
-      rect(30, 251, 491, 37, 'scene-box dashed'), text(275, 275, 'Optional seventh call: synthetic export', 'scene-small', 'middle')
+      rect(30, 251, 491, 37, 'scene-box dashed'), text(275, 275, '7 · Export if exposed', 'scene-small', 'middle')
     ]
   },
   {
-    topic: 'Execution', title: "Run the fixture in local Wasmer",
+    title: "Run in local Wasmer",
     bullets: ["A fresh guest receives explicit synthetic files.", "No host mounts or credentials; guest networking is disabled."],
-    caption: "Local execution uses no Wasmer token. Probe coverage is limited.",
     draw: () => [
       rect(119, 35, 401, 226, 'scene-box dashed'), text(137, 61, 'WASMER GUEST', 'scene-title'),
       box(155, 87, 328, 70, 'Owned MCP fixture', 'Python 3.13.5'),
@@ -72,9 +66,8 @@ const slides = [
     ]
   },
   {
-    topic: 'Evidence', title: "Collect evidence for assessment",
+    title: "Collect the evidence",
     bullets: ["Keep discovery snapshots, repeated outputs and write readback.", "Preserve evidence IDs for the assessor\u2019s citations."],
-    caption: "A difference alone does not establish security impact.",
     draw: () => [
       text(32, 31, 'COLLECTED OBSERVATIONS', 'scene-title'),
       ...[['Tool descriptions','Before / after'],['Repeated output','Same request / later response'],['Write readback','Acknowledgment / stored result']].map(([label,detail], i) => {
@@ -88,11 +81,10 @@ const slides = [
     ]
   },
   {
-    topic: 'Illustrated demo · benign change', title: "Review a description change",
+    title: "Review a description change",
     bullets: ["The description adds a ticket-ID clarification.", "The ticket-reading task stays the same."],
-    caption: "Illustrated outcome: no alert. Live decisions can vary.",
     draw: () => [
-      text(28,33,'DESCRIPTION CHANGE','scene-title'),
+      text(28,33,'SYNTHETIC FIXTURE','scene-title'),
       rect(27,53,491,76),text(43,77,'Before','scene-small'),text(43,105,'Read a ticket.'),
       rect(27,150,491,76,'scene-box strong'),text(43,174,'After','scene-small'),text(43,202,'Read a ticket by its ticket ID.'),
       path('M273 129 V150', 'scene-line flow-line'),
@@ -102,9 +94,8 @@ const slides = [
     ]
   },
   {
-    topic: 'Illustrated demo · harmful instruction', title: "Review a request for credentials",
-    bullets: ["The fixture requests credential material.", "A newly exposed export tool adds evidence for review."],
-    caption: "Synthetic example; no real credentials or transfer shown.",
+    title: "Review a credential request",
+    bullets: ["The synthetic fixture requests credential material.", "A newly exposed export tool adds evidence for review."],
     draw: () => [
       box(26,55,194,70,'Expected task','Read a support ticket'),
       box(26,172,194,70,'New tool instruction','Send credential material','strong'),
@@ -116,9 +107,8 @@ const slides = [
     ]
   },
   {
-    topic: 'Assessment and investigation', title: "Validate and save the assessment",
+    title: "Save the assessment",
     bullets: ["One model returns severity, rationale and evidence IDs.", "Validate JSON and citations, then save flagged findings."],
-    caption: "Runtime or assessment error: failed scan.",
     draw: () => [
       rect(27,31,226,139),text(43,57,'Model judgment'),
       text(43,83,'flag · severity · rationale','scene-mono'),text(43,107,'evidence IDs · recommendation','scene-mono'),
@@ -132,28 +122,24 @@ const slides = [
     ]
   },
   {
-    topic: 'Optional notifications', title: "Preview optional notifications",
+    title: "Preview notifications",
     bullets: ["SMS and Telegram use configured recipients.", "Sending requires credentials and explicit enablement."],
-    caption: "Current state: preview only; external delivery unverified.",
     draw: () => [
-      box(27,72,202,79,'High / critical alert','From a live model assessment'),
+      box(27,72,202,79,'High / critical alert','Live model assessment'),
       rect(27,186,202,57,'scene-box dashed'),text(42,211,'Configured recipient','scene-small'),text(42,230,'Server settings','scene-mono'),
       line(229,110,351,110,'scene-line dashed'), path('M229 213 H287 V110','scene-line dashed'),
       rect(353,25,168,270,'scene-box strong',17),rect(410,37,54,4,'scene-fill',2),
       text(437,71,'SMS PREVIEW','scene-title','middle'),rect(367,96,139,106),
       text(379,123,'MCP Sentinel','scene-small'),text(379,150,'HIGH · Alert <id>'),text(379,178,'Alert summary only','scene-small'),
       text(437,241,'Preview only','scene-mono','middle'),line(415,277,459,277),
-      text(27,280,'Browser alerts are a separate opt-in.','scene-small')
     ]
   },
   {
-    topic: 'Current build', title: "What runs today",
+    title: "What runs today",
     bullets: ["Local Wasmer, one model assessment and saved alert review.", "Scans cover the owned fixture; model reliability is still limited."],
-    caption: "Future work: target onboarding, scheduling and cloud execution.",
     draw: () => [
       text(29,31,'IMPLEMENTED','scene-title'),
       ...[['Local sandbox','Real Wasmer execution'],['Model review','One aggregate assessment'],['Investigation','SQLite events + alert lifecycle']].map(([label,detail],i) => group(rect(28,49+i*66,493,52),check(45,76+i*66),text(76,72+i*66,label),text(260,72+i*66,detail,'scene-small'))),
-      line(29,263,521,263),text(29,289,'Next: expand collection coverage and test unseen cases.','scene-small')
     ]
   }
 ];
@@ -186,12 +172,11 @@ const sections = slides.map((slide, position) => {
   heading.id = `slide-heading-${position + 1}`;
   const points = element('ul', 'slide-description');
   for (const point of slide.bullets) points.append(element('li', '', point));
-  copy.append(element('p', 'slide-topic', slide.topic), heading, points);
+  copy.append(heading, points);
   const figure = element('figure', 'slide-visual');
   const svg = make('svg', {viewBox: '0 0 550 320', role: 'img', 'aria-labelledby': `scene-title-${position + 1}`});
-  svg.append(make('title', {id: `scene-title-${position + 1}`}, `${slide.title} ${slide.caption}`), ...slide.draw());
+  svg.append(make('title', {id: `scene-title-${position + 1}`}, slide.title), ...slide.draw());
   figure.append(svg);
-  if (slide.caption) figure.append(element('figcaption', '', slide.caption));
   section.append(copy, figure);
   stage.append(section);
   const button = element('button', 'progress-button');

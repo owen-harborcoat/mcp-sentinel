@@ -31,6 +31,20 @@
         "Illustrations distinguished from live scans; notification preview and model limitations explicit."
       ],
       "inspiration": "21st Animated Card Diagram inspected through Exa; existing native DOM/SVG primitives retained."
+    },
+    {
+      "date": "2026-09-13",
+      "choice": "Soft blue presentation accent and consistent slide spacing",
+      "palette": {
+        "accent": "#a7c7ff",
+        "slide_background": "#080b10"
+      },
+      "constraints": [
+        "Apply blue to presentation headings, diagram highlights and controls.",
+        "Use shared title baselines, bullet positions and diagram frames across ten slides.",
+        "Remove figcaptions, repeated topic labels and explanatory page footers.",
+        "Keep synthetic fixture and notification preview status in the slide content."
+      ]
     }
   ]
 }

@@ -18,6 +18,8 @@ Version B is installed in sentinel/prompts/security-assessor.txt. Same model and
 
 A top-right How it works button opens /how-it-works. The page includes a five-node architecture diagram and ten slides with animated SVG illustrations, two short bullets per slide, keyboard navigation and pause/play. An independent copy review found no em dashes or misleading live-demo claims. Browser checks covered all ten slides, navigation, pause and 390px layout. Animations respect the reduced-motion CSS preference; this was checked in source rather than emulated in the browser.
 
+Presentation refinement: added soft blue headings, diagram accents and controls; removed all figcaptions, repeated topic labels and explanatory page footers. Shortened headings and normalized title baselines, bullet positions and diagram frames across all ten slides. Browser checks confirmed stable 384px desktop slide height and 526px height at 390px width, with no page overflow. Diagrams retain their own horizontal scroll on narrow screens. JavaScript syntax and whitespace checks passed. Pause affects SVG motion without freezing the slide entry transition.
+
 ## Verification
 
 - After the prompt and presentation update: 31 Python tests passed, six opt-in Wasmer tests skipped, two JavaScript tests passed, and Ruff passed. A separate fresh Wasmer/model service run completed in an isolated database and persisted the expected injection alert.
