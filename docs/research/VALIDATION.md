@@ -1,5 +1,9 @@
 # Helix Sentinel validation and build recommendation
 
+> Historical initial analysis. The user rejected its contract-gate-only direction.
+> [PRODUCT_REVISION.md](PRODUCT_REVISION.md) supersedes the recommendation, Wasmer
+> scope and implementation plan below. Retained to preserve research provenance.
+
 ## Recommendation
 
 Proceed with Helix Sentinel as a tightly scoped, reproducible MCP contract review

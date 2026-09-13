@@ -1,5 +1,9 @@
 # Decisions from handoff review
 
+> Historical initial decisions. Current decisions are in SPEC.md, docs/ALERTS.md
+> and docs/research/PRODUCT_REVISION.md. In particular, Wasmer is mandatory for real
+> execution and agent judgment decides alerts; metadata quarantine is not the product.
+
 | Handoff issue | Current decision | Reason |
 |---|---|---|
 | Split Sentinel/UI vs fixture/scripts | Two full-stack features: monitor and attack lab | User selected feature ownership |

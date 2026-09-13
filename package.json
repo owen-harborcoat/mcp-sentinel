@@ -1,0 +1,8 @@
+{
+  "name": "helix-sentinel-sandbox",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=24"},
+  "dependencies": {"@wasmer/sdk": "0.11.0"},
+  "scripts": {"sandbox:smoke": "node scripts/wasmer_smoke.mjs"}
+}

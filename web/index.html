@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Helix Sentinel · MCP security monitor</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="module" src="/static/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Helix Sentinel home"><span class="brand-mark">H</span><span>HELIX<span class="brand-sub">SENTINEL</span></span></a>
+    <div class="workspace-label">SECURITY WORKSPACE</div>
+    <nav aria-label="Sections"><a href="#overview" class="nav-link">Overview <span>01</span></a><a href="#alerts" class="nav-link">Alerts <span id="nav-alerts">0</span></a><a href="#timeline" class="nav-link">Event timeline</a><a href="#channels" class="nav-link">Notifications</a></nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Local workspace<p>Owned MCP targets only<br>Wasmer + agent assessment</p></div>
+  </aside>
+  <main id="overview">
+    <header><div><div class="eyebrow">MCP SECURITY / OVERVIEW</div><h1>Watch what your tools do.</h1><p class="subtitle">Sandbox execution, agent assessment, and every event in between.</p></div><div class="header-status"><span id="connection" class="pill">Connecting</span><span class="clock" id="updated">Waiting for data</span></div></header>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section class="stats" aria-label="Workspace statistics">
+      <article><span>Scans recorded</span><strong id="stat-scans">0</strong><small>Persistent execution history</small></article>
+      <article><span>Open alerts</span><strong id="stat-open">0</strong><small>Waiting for review</small></article>
+      <article><span>Flagged assessments</span><strong id="stat-flagged">0</strong><small>Backed by cited evidence</small></article>
+      <article><span>Reviewed without alert</span><strong id="stat-clear">0</strong><small>Changes can be benign</small></article>
+    </section>
+    <section class="scan-panel" aria-labelledby="scan-heading">
+      <div class="section-heading"><div><div class="eyebrow">SCAN WORKBENCH</div><h2 id="scan-heading">Helix Desk <span class="pill subtle">Owned fixture</span></h2></div><span id="run-state" class="pill">Idle</span></div>
+      <form id="scan-form"><label>Test scenario<select id="scenario"><option value="poison">Delayed instruction poisoning</option><option value="benign">Harmless instruction clarification</option><option value="behavior">Behavior change · stable metadata</option><option value="clean">Clean support workflow</option></select></label><label>Execution<select id="runtime"><option value="wasmer">Wasmer sandbox · real execution</option><option value="demo">Simulated evidence · no sandbox</option></select></label><label>Scanning agent<select id="assessor"><option value="demo">Demo assessor · test double</option><option value="gemini">Gemini · live assessment</option></select></label><button class="primary" id="run-scan" type="submit">Run scan <span aria-hidden="true">↗</span></button></form>
+      <div class="workbench-note"><span class="status-dot"></span><span id="mode-note">The demo assessor is deterministic. Select Gemini after configuring its key.</span></div>
+      <div class="pipeline" aria-label="Scan workflow"><span>01 <b>Isolate MCP</b></span><span>02 <b>Execute tests</b></span><span>03 <b>Agent reviews evidence</b></span><span>04 <b>Alert if warranted</b></span></div>
+    </section>
+    <div class="content-grid">
+      <section id="alerts" class="panel" aria-labelledby="alerts-heading"><div class="section-heading"><div><div class="eyebrow">REQUIRES ATTENTION</div><h2 id="alerts-heading">Alerts <span id="alert-count" class="count">0</span></h2></div><label class="compact-label">Status<select id="alert-filter"><option value="active">Active</option><option value="all">All alerts</option><option value="resolved">Resolved</option></select></label></div><div id="alert-list" class="alert-list"><p class="empty">No alerts yet. Run a scan to collect evidence.</p></div></section>
+      <section class="panel" aria-labelledby="scans-heading"><div class="section-heading"><div><div class="eyebrow">EXECUTION HISTORY</div><h2 id="scans-heading">Recent scans</h2></div><span class="small-note">Select to inspect</span></div><div id="scan-list"><p class="empty">Your scan history will appear here.</p></div></section>
+    </div>
+    <section id="timeline" class="panel timeline-panel" aria-labelledby="timeline-heading"><div class="section-heading"><div><div class="eyebrow">OBSERVABILITY</div><h2 id="timeline-heading">Event timeline</h2></div><div class="filters"><label class="sr-only" for="search">Search events</label><input id="search" type="search" placeholder="Search event details"><label class="sr-only" for="event-filter">Event type</label><select id="event-filter"><option value="all">All events</option><option value="AGENT">Agent decisions</option><option value="ALERT">Alerts</option><option value="NOTIFICATION">Notifications</option><option value="TEST">Test execution</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Time</th><th>Event</th><th>Detail</th><th>Scan</th></tr></thead><tbody id="event-list"></tbody></table></div><p id="timeline-empty" class="empty">No events recorded. Every scan will leave a trace.</p><div class="panel-footer">Recent 500 events shown · Complete scan evidence is retained locally</div></section>
+    <section id="channels" class="panel" aria-labelledby="channels-heading"><div class="section-heading"><div><div class="eyebrow">NOTIFICATION CENTER</div><h2 id="channels-heading">Keep the signal. Lose the noise.</h2></div><button id="browser-notify" type="button" class="secondary">Enable browser alerts</button></div><p class="channel-description">All findings stay in the dashboard. External delivery is limited to high and critical alerts, with one attempt per alert occurrence cycle.</p><div class="channels"><article><h3>Dashboard + browser</h3><span class="pill good">Free · no API key</span><p id="browser-state">Dashboard active. Browser notifications are opt-in.</p></article><article><h3>Telegram</h3><span id="telegram-state" class="pill">Preview mode</span><p>Free bot notifications to your configured chat. No paid broadcasts.</p></article><article><h3>SMS · Twilio</h3><span id="twilio-state" class="pill">Preview mode</span><p>Adapter ready. Current free trials restrict custom alert messages.</p></article></div><div id="delivery-list" class="deliveries"></div></section>
+    <footer>HELIX SENTINEL <span>Sandboxed testing. Accountable assessment.</span></footer>
+  </main>
+  <dialog id="detail-dialog"><div class="dialog-header"><h2 id="detail-title">Scan detail</h2><button id="close-dialog" aria-label="Close scan detail" type="button">×</button></div><div id="detail-body"></div></dialog>
+</body></html>

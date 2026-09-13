@@ -1,4 +1,4 @@
-name: Foundation and feature checks
+name: Sandbox and alert checks
 on: [push, pull_request]
 permissions:
   contents: read
@@ -15,6 +15,13 @@ jobs:
           version: "0.12.9"
           python-version: "3.13"
       - run: uv sync --frozen --extra dev
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: uv run --frozen ruff check .
       - run: uv run --frozen pytest -q
+        env:
+          RUN_WASMER_TESTS: "1"
       - run: uv run --frozen python -m scripts.protocol_smoke

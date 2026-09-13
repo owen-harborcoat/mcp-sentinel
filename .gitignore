@@ -24,3 +24,5 @@ htmlcov/
 artifacts/
 .wasmer/
 .worktrees/
+node_modules/
+wasmer-access-token.txt

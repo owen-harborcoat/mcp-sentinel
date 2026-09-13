@@ -8,7 +8,8 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from helix.contract import CLEAN_TOOLS, POISON_ADD_COMMENT, POISON_EXPORT_WORKSPACE
-from sentinel.app import app
+from sentinel.app import create_app
+from sentinel.config import Settings
 from shared.contracts import DetectionSnapshot, EventDraft, EventKind, ToolContract
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,9 +44,10 @@ def test_partial_discovery_is_explicit():
     assert snapshot.tools == []
 
 
-def test_health_does_not_claim_mcp_or_policy_readiness():
-    with TestClient(app) as client:
+def test_health_distinguishes_scanner_from_unimplemented_proxy(tmp_path):
+    app = create_app(Settings(database=str(tmp_path / 'health.db')))
+    with TestClient(app, base_url='http://127.0.0.1') as client:
         assert client.get("/api/health").json() == {
-            "status": "scaffold", "api_version": "1", "mcp_ready": False
+            "status": "ready", "api_version": "2", "service": "scan-dashboard", "mcp_proxy": False
         }
         assert client.post("/mcp", json={}).status_code == 404

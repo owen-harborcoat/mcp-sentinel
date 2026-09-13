@@ -1,8 +1,9 @@
 # Team workflow
 
 Start with docs/TEAM.md and the matching CODEX_PROMPT file. The initialized local
-repository has main plus feature/contract-monitor and feature/attack-lab at the
-same foundation commit. No remote has been selected or created.
+repository has main plus feature/contract-monitor and feature/attack-lab. The
+feature branches began at the original foundation; merge updated main into each
+before starting the sandbox/alerts feature work. No remote has been selected or created.
 
 ## Separate computers
 
@@ -20,7 +21,7 @@ git worktree add ../helix-monitor feature/contract-monitor
 git worktree add ../helix-lab feature/attack-lab
 ```
 
-Run uv sync --frozen --extra dev in each. Worktrees share Git history but not their
+Run uv sync --frozen --extra dev and npm ci in each (Node 24+). Worktrees share Git history but not their
 working files or virtual environments. Do not run both copies of the services on
 the same ports at once. These commands are optional; no worktrees were pre-created.
 
