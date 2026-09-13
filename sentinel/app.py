@@ -145,6 +145,10 @@ def create_app(settings=None):
     def index():
         return FileResponse(ROOT / 'web/index.html')
 
+    @app.get('/how-it-works')
+    def how_it_works():
+        return FileResponse(ROOT / 'web/how-it-works.html')
+
     app.mount('/static', StaticFiles(directory=ROOT / 'web'), name='static')
     return app
 

@@ -1,0 +1,7 @@
+{
+  "selected": "b",
+  "selected_at": "2026-09-13T20:03:14.603539+00:00",
+  "prompt_sha256": "3a0f0426aa8974be633ad72aec5ef3e8a930cd536783395a4f235a9522a2a8d4",
+  "basis": "A and B matched 5/6 development cases; B had all four security detections, no invented citations, and fewer reported tokens. C already has two misses and cannot exceed 4/6. Selection made before reading or running held-out cases.",
+  "holdout_sha256": "66ab46d68a5f2bdad354361352a87af7f9ef0f6b756ef280c8c6e6122979d936"
+}

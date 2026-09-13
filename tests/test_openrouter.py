@@ -5,7 +5,7 @@ import httpx
 import pytest
 
 from sentinel.app import create_app
-from sentinel.assessor import assess_openrouter
+from sentinel.assessor import SYSTEM, assess_openrouter
 from sentinel.config import Settings
 from sentinel.models import Evidence
 
@@ -34,6 +34,9 @@ def test_openrouter_schema_redaction_and_model_attribution():
     assert str(request.url) == 'https://openrouter.ai/api/v1/chat/completions'
     assert request.headers['authorization'] == 'Bearer test-key'
     assert payload['model'] == 'openrouter/free'
+    assert payload['messages'][0] == {'role': 'system', 'content': SYSTEM}
+    assert evidence()[0].summary not in SYSTEM
+    assert evidence()[0].summary in payload['messages'][1]['content']
     assert payload['provider']['require_parameters']
     assert payload['response_format']['json_schema']['strict']
     assert 'tools' not in payload and 'test-key' not in request.content.decode()

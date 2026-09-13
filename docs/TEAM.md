@@ -21,16 +21,17 @@ starting point, not a request to rewrite from scratch.
 ## Remaining tickets
 
 A:
-- Extend write/readback tests to locate unintended writes; the model missed all three missing-write cases.
+- Extend functional write/readback checks and define consistency windows. Missing readback alone is not a security finding; establish an authorization boundary and collect destination evidence before classifying an unintended write as an attack.
 - Broaden session lengths: current six-call tests never exposed the call-ten attack.
 - Define an explicit approved-target manifest before accepting additional MCPs.
 - Verify Wasmer on the teammate's OS and package cold-start behavior.
 
 B:
-- OpenRouter is configured. Review the 30-run results in EVALUATION.md; eight assessment errors need safe diagnostics.
+- OpenRouter is configured. Review the corrected baseline in EVALUATION.md: 15 visible security-case runs yielded 9 detections, 1 miss and 5 errors; 12 non-actionable controls yielded 8 clears, 1 false positive and 3 errors. Three collection gaps are separate. Do not reuse the original combined score.
 - Address assessor prompt injection (one exact clean-verdict override) and test fresh holdout cases.
+- An isolated prompt study is pending in PROMPT_LAB.md; do not claim improvement until its full results are recorded.
 - Define actionable-alert policy for quoted attack reports and validate severity consistency. Timeline/alert filtering is implemented.
-- Configure free Telegram after previews; validate one explicitly authorized send.
+- Configure Telegram after previews; validate one explicitly authorized send. Manual alert reopen changes state/generation and does not automatically send externally.
 - Keep provider acceptance distinct from delivered status.
 
 Joint:

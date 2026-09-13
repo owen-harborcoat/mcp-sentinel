@@ -2,6 +2,9 @@
 
 ## Decision boundary
 
+The current shared prompt is [security-assessor.txt](../sentinel/prompts/security-assessor.txt).
+The [prompt study](PROMPT_LAB.md) records its selection, failures and remaining limits.
+
 Collection and judgment are separate. sentinel/scanner.py records test output and
 metadata; sentinel/assessor.py decides whether to flag. The model sees tool content
 as untrusted evidence. Its structured judgment must cite existing evidence IDs.
@@ -29,8 +32,10 @@ increment its generation. All lifecycle actions add timeline events.
 Acknowledgment does not erase evidence. A clean scan does not automatically resolve
 an earlier finding; resolution is a review decision.
 
-New/reopened high or critical alerts attempt configured external channels only
-when LIVE_NOTIFICATIONS=1. Otherwise both adapters record dry-run previews.
+A scan that creates, reopens or escalates a high or critical alert attempts
+configured external channels only when LIVE_NOTIFICATIONS=1. Otherwise both
+adapters record dry-run previews. A manual reopen changes state and generation;
+the action endpoint does not invoke external delivery.
 Browser notifications are separately opt-in, while the dashboard remains open.
 Medium findings remain dashboard alerts without external delivery.
 
@@ -39,8 +44,9 @@ Provider acceptance is recorded as accepted, not handset delivery. Network
 timeouts/5xx/interrupted sends become unknown and are not automatically retried.
 A dry-run claim can be promoted to one live attempt. Automatic retries, delivery
 webhooks, escalation schedules and recipient management are outside this slice.
-A manually reopened alert starts a new generation; use that deliberately because
-a new notification attempt becomes possible.
+A manually reopened alert starts a new generation, making a manual notification
+attempt possible. It does not itself send externally. Browser notifications can
+observe that new generation while the page is open and notifications are enabled.
 
 Messages contain only severity and local alert ID. They never contain model text,
 tool payloads, secrets or full evidence. Recipients come solely from server settings.
@@ -58,7 +64,7 @@ Keep the app bound to 127.0.0.1 with one worker. Restart after configuration cha
   has variable latency/model availability and no paid-model fallback in this app.
   Only redacted synthetic fixture evidence is sent; keys never enter guest files.
 - Gemini alternative: set GEMINI_API_KEY, retain/configure GEMINI_MODEL, restart, then select
-  Gemini in the dashboard. Start with all four synthetic scenarios and inspect
+  Gemini in the dashboard. Start with the original four synthetic scenarios and inspect
   rationale/evidence. Free-tier eligibility and limits depend on the model/account.
 - Telegram: create a bot through BotFather, start it in the intended chat, and
   configure TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID. Preview first. Set

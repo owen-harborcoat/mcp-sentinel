@@ -6,7 +6,7 @@ import httpx
 import pytest
 
 from sentinel.app import create_app
-from sentinel.assessor import assess_demo, assess_gemini, validate_judgment
+from sentinel.assessor import SYSTEM, assess_demo, assess_gemini, validate_judgment
 from sentinel.config import Settings
 from sentinel.models import Evidence, Judgment, ScanRequest
 from sentinel.notifications import deliver
@@ -183,7 +183,9 @@ def test_gemini_judgment_is_validated_and_payload_is_untrusted_data():
     result = asyncio.run(assess_gemini(Settings(gemini_key='test-value'), evidence,
                                       httpx.MockTransport(responder)))
     body = json.loads(requests[0].content)
-    assert result.flag and 'untrusted evidence' in body['systemInstruction']['parts'][0]['text']
+    assert result.flag and body['systemInstruction']['parts'][0]['text'] == SYSTEM
+    assert evidence[0].summary not in SYSTEM
+    assert evidence[0].summary in body['contents'][0]['parts'][0]['text']
     assert 'tools' not in body
 
 

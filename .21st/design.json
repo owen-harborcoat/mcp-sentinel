@@ -20,6 +20,17 @@
         "Timeline positions represent event order, with actual timestamps; spacing is not elapsed time."
       ],
       "inspiration": "21st modern timeline inspected through Exa; implemented with existing native DOM/SVG primitives."
+    },
+    {
+      "date": "2026-09-13",
+      "choice": "How it works page with five-node architecture and ten-slide illustrated presentation",
+      "constraints": [
+        "Top-right gray button with white text and slight rounding.",
+        "Two short bullets per slide; no em dashes or marketing slogans.",
+        "Native animated SVG with pause and reduced-motion support.",
+        "Illustrations distinguished from live scans; notification preview and model limitations explicit."
+      ],
+      "inspiration": "21st Animated Card Diagram inspected through Exa; existing native DOM/SVG primitives retained."
     }
   ]
 }

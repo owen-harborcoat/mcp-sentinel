@@ -10,9 +10,14 @@ alert lifecycle, and notification previews. The local dashboard works without AP
 keys using a visibly labeled deterministic demo assessor. OpenRouter is the preferred live assessor; Gemini remains optional. Notification
 adapters are tested with mocked providers. See RESUME.md for live verification.
 
-**Current assessment:** the 30-run adversarial evaluation produced 14 expected verdicts,
-8 assessment errors, 7 missed malicious targets (3 coverage gaps), and 1 false positive.
-The detector is not consistently reliable. See [full results](docs/EVALUATION.md).
+**Baseline assessment, corrected:** 15 runs contained visible security concerns:
+9 detections, 1 miss and 5 assessment errors. Twelve non-actionable control runs
+produced 8 clears, 1 false positive and 3 errors. Three late-trigger runs are separate
+collection gaps. A missing write was incorrectly labeled a security violation in
+the original report. There is no combined accuracy claim; see the [corrected results](docs/EVALUATION.md).
+The isolated [prompt study](docs/PROMPT_LAB.md) reproduced the failure and selected a revised
+general prompt. The gain on development cases was modest; independent reliability
+remains unproven.
 
 The dashboard now has compact alert tables and a scrollable event timeline. Twelve
 owned test cases are selectable with Wasmer. OpenRouter reviews fixed test evidence;
@@ -85,14 +90,18 @@ CI includes collector checks on Windows and Linux; only Windows has been run loc
 This build scans one owned synthetic stdio MCP fixture. It is not yet an arbitrary
 MCP fleet scanner, scheduled service, transparent MCP gateway, or general security
 guarantee. The guest gets explicit files, no host mounts or credentials, disabled
-networking and execution/output bounds. Keep the dashboard on loopback, single worker.
+networking and execution/output bounds. The bridge records isolation probe results;
+it does not enforce every recorded boolean as a startup gate. The failed socket
+probe alone does not demonstrate blocked egress. Keep the dashboard on loopback,
+single worker.
 
 Set OPENROUTER_API_KEY for live assessment and OPENROUTER_MODEL to openrouter/free
 (or a specific compatible model). The free router can vary models, availability and
 latency; every verdict records the actual returned model. No paid fallback is added.
 The direct Gemini adapter still accepts GEMINI_API_KEY. Free external notifications use
 TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID; LIVE_NOTIFICATIONS=1 explicitly enables
-automatic high/critical notification attempts on new or reopened findings.
+automatic high/critical notification attempts when a scan creates, reopens or
+escalates a finding. A manual reopen changes state and generation without sending.
 Browser notifications need no provider key and work while the page is open.
 Twilio is optional: its current trial limits SMS to predefined templates, so custom
 security SMS is not promised free. See [alert setup](docs/ALERTS.md).
