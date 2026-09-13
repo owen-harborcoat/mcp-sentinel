@@ -37,7 +37,7 @@ h3 { font-size: 14px; font-weight: 550; }
 
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 184px; border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 24px 12px; background: #090909; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; height: 32px; font-size: 15px; font-weight: 600; letter-spacing: -.5px; white-space: nowrap; }
-.brand svg { width: 24px; height: 24px; flex: 0 0 auto; fill: none; stroke: var(--fg); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.brand-mark { display: block; width: 28px; height: 28px; flex: 0 0 auto; }
 .sidebar nav { margin-top: 28px; display: grid; gap: 6px; }
 .sidebar nav a { position: relative; padding: 10px; border-radius: 5px; color: var(--muted); display: flex; align-items: center; gap: 10px; min-height: 40px; }
 .sidebar nav a:hover { color: var(--fg); background: var(--soft); }
@@ -58,6 +58,11 @@ main { margin-left: 184px; padding: 24px 24px 48px; max-width: 1920px; min-width
 #stat-runtime { font-size: 12px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
 .how-it-works-link { flex-shrink: 0; display: inline-flex; align-items: center; min-height: 32px; padding: 5px 12px; border: 1px solid rgb(255 255 255 / .12); border-radius: 4px; background: #303030; color: #fff; font-size: 12px; }
 .how-it-works-link:hover { background: #3c3c3c; }
+.powered-by { display: flex; justify-content: center; padding-top: 24px; }
+.powered-by a { display: inline-flex; align-items: center; gap: 9px; min-height: 28px; color: var(--muted); font-size: 11px; }
+.wasmer-name { color: rgb(255 255 255 / .75); font-size: 13px; font-weight: 550; letter-spacing: -.25px; }
+.powered-by a:hover { color: var(--fg); }
+.powered-by a:hover .wasmer-name { color: #fff; }
 .runbar { display: grid; grid-template-columns: minmax(180px, 2fr) minmax(100px, .9fr) minmax(120px, 1fr) 112px; align-items: end; gap: 12px; margin: 0; padding: 16px; }
 .runbar label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; min-width: 0; }
 .runbar select { width: 100%; color: var(--fg); font-size: 12px; height: 36px; background: #101010; }
@@ -235,7 +240,7 @@ pre { font: 11px/1.7 ui-monospace, Consolas, monospace; white-space: pre-wrap; o
   .workspace-name { display: none; }
   .sidebar { position: static; width: auto; padding: 14px 16px; border-right: 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: row; align-items: center; gap: 12px; }
   .brand { padding: 0; }
-  .brand svg { width: 24px; height: 24px; }
+  .brand-mark { width: 26px; height: 26px; }
   .sidebar nav { display: flex; gap: 4px; margin: 0 0 0 auto; }
   .sidebar nav a { min-height: 34px; height: 34px; width: 36px; padding: 8px; }
   .connection-status { display: none; }

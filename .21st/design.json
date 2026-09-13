@@ -59,6 +59,14 @@
         "Read real persisted records. Do not add visual-only alerts or metrics."
       ],
       "inspiration": "21st Incident Status Timeline inspected through Exa; native project DOM/SVG retained."
+    },
+    {
+      "date": "2026-09-13",
+      "choice": "Original M and signal-dot SVG logo with a compact Wasmer footer",
+      "constraints": [
+        "Use the same monochrome vector mark in both headers and the favicon.",
+        "Keep Powered by Wasmer as a small linked text attribution at the bottom of each page."
+      ]
     }
   ]
 }

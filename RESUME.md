@@ -28,6 +28,8 @@ Timeline nodes have custom pointer/focus previews, Escape/scroll dismissal, pers
 
 Verification: eight focused JavaScript timeline tests and syntax checks passed. Browser checks covered pointer-triggered preview, focus preview and Escape, previous/next/latest, event-log keyboard selection, filters and empty-result recovery, clear/reselect, rationale persistence through polling, and opening actual scan evidence. Desktop 884px, mobile 390px and wide 1440px layouts had no page overflow. Native drag could not reliably validate pointer transfer into the tooltip; independent source review confirmed the hover-retention handlers, and identified the polling dismissal issue that was fixed. The new-event focus-restoration fix was source-reviewed, not tested by creating a live scan. No new scans, alerts or deliveries were created during this UI work.
 
+Brand update: added an original M and signal-dot SVG mark to both page headers and the favicon. Both pages include a compact linked Powered by Wasmer footer using text attribution. SVG XML and local HTTP image/svg+xml responses were checked; browser inspection confirmed the logo loads and footer renders. No runtime, model or notification behavior changed.
+
 ## Verification
 
 - After the prompt and presentation update: 31 Python tests passed, six opt-in Wasmer tests skipped, two JavaScript tests passed, and Ruff passed. A separate fresh Wasmer/model service run completed in an isolated database and persisted the expected injection alert.

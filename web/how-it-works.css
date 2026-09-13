@@ -25,7 +25,13 @@ h1, h2, h3, p { margin: 0; }
 
 .page-header, main { width: min(1152px, 100% - 64px); margin: auto; }
 .page-header { display: flex; align-items: center; justify-content: space-between; height: 88px; }
-.brand { font-size: 15px; font-weight: 600; letter-spacing: -.4px; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: -.4px; }
+.brand-mark { display: block; width: 28px; height: 28px; flex: 0 0 auto; }
+.powered-by { display: flex; justify-content: center; padding-top: 24px; }
+.powered-by a { display: inline-flex; align-items: center; gap: 9px; min-height: 28px; color: var(--muted); font-size: 11px; }
+.wasmer-name { color: rgb(255 255 255 / .75); font-size: 13px; font-weight: 550; letter-spacing: -.25px; }
+.powered-by a:hover { color: var(--fg); }
+.powered-by a:hover .wasmer-name { color: #fff; }
 .back-link { font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px; }
 .skip-link { position: fixed; left: 16px; top: -70px; padding: 10px 16px; background: var(--accent); color: var(--bg); z-index: 2; }
 .skip-link:focus { top: 12px; }
