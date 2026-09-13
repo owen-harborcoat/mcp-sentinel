@@ -7,9 +7,9 @@ the current scan/alert API uses sentinel/models.py.
 ## Scan boundary
 
 POST /api/scans accepts scenario (clean/benign/poison/behavior), runtime
-(wasmer/demo), assessor (gemini/demo), rejects extra fields, and returns
+(wasmer/demo), assessor (openrouter/gemini/demo), rejects extra fields, and returns
 202 {scan_id,status}. One scan at a time; another receives 409.
-A missing Gemini key returns 409 before creating a scan. No caller-supplied target,
+A missing selected provider key returns 409 before creating a scan. No caller-supplied target,
 URL, shell command, recipient or model API endpoint is accepted.
 
 GET /api/scans/{id} returns persisted state, error or result containing evidence,

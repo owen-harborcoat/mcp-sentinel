@@ -26,3 +26,4 @@ artifacts/
 .worktrees/
 node_modules/
 wasmer-access-token.txt
+openrouter-api-key.txt

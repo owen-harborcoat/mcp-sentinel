@@ -7,9 +7,8 @@ warrant alerts. Description/schema drift is one input, never the verdict.
 **Implemented:** real Wasmer execution of the owned Helix MCP fixture, official
 MCP SDK client tests, SQLite event history, scan evidence, agent assessment adapter,
 alert lifecycle, and notification previews. The local dashboard works without API
-keys using a visibly labeled deterministic demo assessor. Gemini and notification
-adapters are implemented and tested with mocked providers; live provider validation
-requires credentials.
+keys using a visibly labeled deterministic demo assessor. OpenRouter is the preferred live assessor; Gemini remains optional. Notification
+adapters are tested with mocked providers. See RESUME.md for live verification.
 
 ## Run
 
@@ -40,7 +39,8 @@ Select **Wasmer sandbox / Demo assessor**, then run the four scenarios:
 Open evidence, acknowledge/resolve/reopen an alert, and inspect the event timeline.
 Repeat a finding to see occurrence deduplication. External notifications default
 to previews. Demo assessments cannot send externally even when live mode is enabled.
-Select Gemini after configuring its key to replace the test double with model judgment.
+OpenRouter is selected automatically when its key is configured. Otherwise the UI
+selects the labeled demo assessor. Gemini remains available as an alternative.
 
 ## Team handoff
 
@@ -49,6 +49,7 @@ Select Gemini after configuring its key to replace the test double with model ju
 - [Corrected product/research direction](docs/research/PRODUCT_REVISION.md)
 - [Feature A brief](CODEX_PROMPT_A.md) / [Feature B brief](CODEX_PROMPT_B.md)
 - [Verification and remaining work](RESUME.md)
+- [OpenRouter setup and live fixture results](docs/OPENROUTER.md)
 
 A owns sandbox execution, test coverage and scan-detail UI. B owns agent assessment,
 alerts, timeline and notification channels. Both are full stack. Existing branch
@@ -75,7 +76,10 @@ MCP fleet scanner, scheduled service, transparent MCP gateway, or general securi
 guarantee. The guest gets explicit files, no host mounts or credentials, disabled
 networking and execution/output bounds. Keep the dashboard on loopback, single worker.
 
-Set GEMINI_API_KEY for live assessment. Free external notifications use
+Set OPENROUTER_API_KEY for live assessment and OPENROUTER_MODEL to openrouter/free
+(or a specific compatible model). The free router can vary models, availability and
+latency; every verdict records the actual returned model. No paid fallback is added.
+The direct Gemini adapter still accepts GEMINI_API_KEY. Free external notifications use
 TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID; LIVE_NOTIFICATIONS=1 explicitly enables
 automatic high/critical notification attempts on new or reopened findings.
 Browser notifications need no provider key and work while the page is open.

@@ -61,6 +61,8 @@ def create_app(settings=None):
     @app.get('/api/config')
     def config():
         return {'gemini_ready': not placeholder(settings.gemini_key),
+                'openrouter_ready': not placeholder(settings.openrouter_key),
+                'openrouter_model': settings.openrouter_model,
                 'gemini_model': settings.gemini_model,
                 'live_notifications': settings.live_notifications,
                 'telegram_ready': readiness(settings, 'telegram'),
@@ -96,6 +98,8 @@ def create_app(settings=None):
 
     @app.post('/api/scans', status_code=202)
     async def scan(request: ScanRequest):
+        if request.assessor == 'openrouter' and placeholder(settings.openrouter_key):
+            raise HTTPException(409, 'Configure OPENROUTER_API_KEY or use the labeled demo assessor')
         if request.assessor == 'gemini' and placeholder(settings.gemini_key):
             raise HTTPException(409, 'Configure GEMINI_API_KEY or use the labeled demo assessor')
         if service.lock.locked():

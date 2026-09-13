@@ -1,7 +1,7 @@
 """Validated scan evidence and agent judgments."""
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 Severity = Literal["info", "low", "medium", "high", "critical"]
 SEVERITIES = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -16,6 +16,7 @@ class Evidence(BaseModel):
 
 
 class Judgment(BaseModel):
+    _resolved_model: str | None = PrivateAttr(default=None)
     model_config = ConfigDict(extra="forbid")
     flag: bool
     severity: Severity
@@ -38,7 +39,7 @@ class ScanRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     scenario: Literal["clean", "benign", "poison", "behavior"] = "poison"
     runtime: Literal["wasmer", "demo"] = "wasmer"
-    assessor: Literal["gemini", "demo"] = "demo"
+    assessor: Literal["openrouter", "gemini", "demo"] = "demo"
 
 
 class AlertAction(BaseModel):

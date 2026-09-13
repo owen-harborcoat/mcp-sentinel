@@ -9,7 +9,7 @@ Own sentinel/assessor.py, store.py, notifications.py, tests/test_alerts.py and
 alert/timeline/notification browser functions. Coordinate shared shell/lockfile
 and ScanService edits with A. Preserve sandbox/workbench/detail work.
 
-Priority: configure Gemini locally after obtaining the key, run and review all
+Priority: configure OpenRouter locally after obtaining the key, run and review all
 four scenarios, improve alert/timeline investigation, and verify a free Telegram
 channel only when delivery is explicitly enabled. Metadata drift is evidence,
 never an automatic verdict. Reject malformed judgments and invented evidence;

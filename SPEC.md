@@ -20,7 +20,7 @@ individual primitives.
    export when exposed.
 4. Preserve event/evidence records. Hashes identify differences and duplicate
    findings; they do not decide whether instructions are harmful.
-5. Gemini assesses evidence under a strict response schema: flag, severity,
+5. OpenRouter (or optional direct Gemini) assesses evidence under a strict response schema: flag, severity,
    category, title, rationale, cited evidence IDs, recommendation. Reject malformed
    responses, invented evidence references, and extra fields.
 6. Flagged findings create/update alerts. Benign observations remain searchable
@@ -33,8 +33,8 @@ individual primitives.
 
 The harmless description-change case must finish without an alert under the demo
 assessor; the stable-metadata behavior-change case must generate a finding. These
-are fixture assertions, not guarantees about Gemini decisions. Evaluate actual
-Gemini decisions separately and report unexpected classifications.
+are fixture assertions, not guarantees about model decisions. Evaluate actual
+live model decisions separately and report unexpected classifications.
 
 Wasmer is real even with the demo assessor. Simulation is labeled separately.
 The demo assessor is deterministic and must never be represented as an LLM.

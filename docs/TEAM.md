@@ -27,7 +27,7 @@ A:
 - Verify Wasmer on the teammate's OS and package cold-start behavior.
 
 B:
-- Configure the model key and evaluate all four scenarios with Gemini.
+- Configure the model key and evaluate all four scenarios with OpenRouter.
 - Check rationale/citations and tune false positives with benign changes.
 - Polish timeline/alert filtering; unchanged controls now retain focus during polling.
 - Configure free Telegram after previews; validate one explicitly authorized send.
@@ -43,7 +43,7 @@ Joint:
 
 | Deadline | Joint outcome |
 |---|---|
-| 1:30 PM | Both teammates running updated foundation; real Gemini decisions inspected |
+| 1:30 PM | Both teammates running updated foundation; real OpenRouter decisions inspected |
 | 2:45 PM | Integrated sandbox tests, evidence and alert demo |
 | 3:45 PM | Failure cases, repeated findings and optional notification verified |
 | 4:30 PM | Feature freeze; remove misleading claims and fix presentation issues |

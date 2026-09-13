@@ -1,5 +1,22 @@
 # Handoff: Wasmer scans and agent-reviewed alerts
 
+## Current update: OpenRouter configured and verified
+
+OpenRouter replaces direct Gemini as the preferred live assessor. The supplied
+key is stored in ignored .env and its original text file is also ignored. The
+local environment and .env.example pin dots-studio/dots-3-note-preview:free.
+This model correctly classified all four fixture scenarios in live Wasmer scans:
+clean/benign cleared; poison/behavior flagged. 35 automated tests passed.
+See docs/OPENROUTER.md for scan IDs, caveats and the initial random-router miss.
+The miss remains in history; generated severity/rationale are not security proof.
+Telegram/SMS remain preview-only. No Gemini key is needed. Model inference was
+exercised live; external messaging was not. Browser defaults to configured OpenRouter.
+
+The initial build checkpoint below is retained as historical context; the model
+configuration and verification above supersede its outstanding Gemini-key step.
+
+## Initial build checkpoint
+
 Current product direction is the user's broader MCP sandbox/testing/monitoring
 workspace. The former metadata-quarantine pivot is superseded by SPEC.md and
 docs/research/PRODUCT_REVISION.md. Original ZIP reference files remain intact.
