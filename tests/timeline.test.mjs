@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {timelineLayout, eventLevel, preferredEvent, tooltipPosition, dashboardStats, scanContextLabel} from '../web/timeline.js';
+import {timelineLayout, eventLevel, preferredEvent, tooltipPosition, dashboardStats, scanContextLabel, activeScanProgress} from '../web/timeline.js';
 
 test('timeline branches come from actual findings, not metadata drift', () => {
   assert.equal(eventLevel({kind:'METADATA_OBSERVED', severity:'high'}), 'normal');
@@ -87,4 +87,24 @@ test('status counts and provenance come from actual overview records', () => {
   ],alerts:[{status:'open'},{status:'acknowledged'},{status:'resolved'}]});
   assert.deepEqual(stats,{scans:3,active:2,failed:1,runtime:'Wasmer',runtimeTitle:'Wasmer · openrouter:actual-model'});
   assert.deepEqual(dashboardStats({}),{scans:0,active:0,failed:0,runtime:'No scans yet',runtimeTitle:'No scans yet'});
+});
+
+test('running cursor follows its own scan despite interleaved historical actions', () => {
+  const scans=[{id:'live',status:'running',created_at:'2026-09-13'}];
+  const events=[{id:10,scan_id:'live',kind:'SCAN_STARTED'},
+    {id:11,scan_id:'live',kind:'ASSESSMENT_STARTED'},
+    {id:12,scan_id:'old',kind:'ALERT_RESOLVED'}];
+  assert.deepEqual(activeScanProgress(scans,events),{scanId:'live',event:events[1]});
+  assert.deepEqual(activeScanProgress(scans,[]),{scanId:'live',event:null});
+});
+
+test('completion or failure clears running cursor even before overview catches up', () => {
+  const scans=[{id:'live',status:'running',created_at:'2026-09-13'}];
+  for(const kind of ['SCAN_COMPLETED','SCAN_FAILED']) {
+    assert.equal(activeScanProgress(scans,[{id:1,scan_id:'live',kind}]),null);
+  }
+  for(const status of ['completed','failed','interrupted']) {
+    assert.equal(activeScanProgress([{...scans[0],status}],[{id:1,scan_id:'live',kind:'SCAN_STARTED'}]),null);
+  }
+  assert.equal(activeScanProgress([],[]),null);
 });

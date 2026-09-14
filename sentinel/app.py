@@ -105,9 +105,9 @@ def create_app(settings=None):
     @app.post('/api/scans', status_code=202)
     async def scan(request: ScanRequest):
         if request.assessor == 'openrouter' and placeholder(settings.openrouter_key):
-            raise HTTPException(409, 'Configure OPENROUTER_API_KEY or use the labeled demo assessor')
+            raise HTTPException(409, 'Configure OPENROUTER_API_KEY before scanning')
         if request.assessor == 'gemini' and placeholder(settings.gemini_key):
-            raise HTTPException(409, 'Configure GEMINI_API_KEY or use the labeled demo assessor')
+            raise HTTPException(409, 'Configure GEMINI_API_KEY before scanning')
         if service.lock.locked():
             raise HTTPException(409, 'A scan is already running')
         await service.lock.acquire()

@@ -12,8 +12,8 @@ individual primitives.
 
 ## Implemented flow
 
-1. Select one of twelve owned Helix fixture scenarios. All support real Wasmer;
-   simulation supports only the original four scenarios.
+1. Select one of twelve owned Helix fixture scenarios. Every scan uses real Wasmer
+   and a configured OpenRouter or Gemini provider. No simulated runtime or assessor.
 2. Start a fresh local Wasmer Python guest with explicit synthetic files, no host
    mounts, no injected credentials, disabled network and bounded execution/output.
 3. Initialize through the official Python MCP client. Capture tools, execute three
@@ -33,20 +33,21 @@ individual primitives.
 
 ## Acceptance
 
-The harmless description-change case must finish without an alert under the demo
-assessor; the stable-metadata behavior-change case must generate a finding. These
-are fixture assertions, not guarantees about model decisions. Evaluate actual
-live model decisions separately and report unexpected classifications.
+The collector tests verify harmless description changes and stable-metadata output
+changes directly in real Wasmer evidence. The live model must decide whether they
+support a security finding; evaluate actual decisions separately and retain misses,
+false positives and provider errors. Unit tests mock dependencies only in tests,
+not through a selectable production mode.
 
 A successful write acknowledgment followed by missing readback is a functional
 discrepancy. Without evidence of a security boundary violation it is not an
 actionable security finding. Keep correctness checks, collection coverage and
 assessment failures separate from threat-detection results. The corrected baseline
-is in docs/EVALUATION.md; an isolated prompt study is pending in docs/PROMPT_LAB.md.
+is in docs/EVALUATION.md; an isolated prompt study is recorded in docs/PROMPT_LAB.md.
 
-Wasmer is real even with the demo assessor. Simulation is labeled separately.
-The demo assessor is deterministic and must never be represented as an LLM.
-No failed sandbox startup may silently fall back to host execution or simulation.
+The request schema accepts only runtime=wasmer and assessor=openrouter/gemini.
+No failed sandbox startup may fall back to host execution or simulated evidence.
+Missing credentials block new scans. Historical records keep original provenance.
 
 ## Boundaries and next slice
 
@@ -60,7 +61,7 @@ against every escape. The bridge records probe booleans without universally
 enforcing them as startup gates; filesystem assertions exist in integration tests.
 The unsuccessful socket probe alone cannot establish blocked egress. Do not
 execute untrusted third-party MCP packages under the
-current demo admission model.
+current owned-fixture admission model.
 
 The agent can judge severity but cannot choose recipients, enable channels,
 execute host commands or change the Wasmer policy. Human triage remains possible.

@@ -138,15 +138,15 @@ class Store:
         self.event(row["scan_id"], "ALERT_" + target.upper(), f"Alert #{alert_id} {target}")
         return self.alert(alert_id)
 
-    def claim_delivery(self, alert, channel, live):
+    def claim_delivery(self, alert, channel):
         stamp = now()
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM deliveries WHERE alert_id=? AND generation=? AND channel=?",
                              (alert["id"], alert["generation"], channel)).fetchone()
-            if row and not (live and row["status"] == "dry_run"):
+            if row and row["status"] != "dry_run":
                 return dict(row), False
-            status = "sending" if live else "dry_run"
+            status = "sending"
             if row:
                 db.execute("UPDATE deliveries SET status=?,updated_at=? WHERE id=?",
                            (status, stamp, row["id"]))
@@ -155,7 +155,7 @@ class Store:
                 cur = db.execute("""INSERT INTO deliveries(alert_id,generation,channel,status,
                     detail,provider_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)""",
                     (alert["id"], alert["generation"], channel, status,
-                     "Preview only; no external message sent" if not live else "Submitting",
+                     "Submitting",
                      None, stamp, stamp))
                 delivery_id = cur.lastrowid
         return {"id": delivery_id, "status": status}, True

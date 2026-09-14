@@ -91,7 +91,10 @@ def test_service_retains_actual_model_provenance(tmp_path, monkeypatch):
     monkeypatch.setattr('sentinel.service.assess_openrouter', assess)
     store = Store(tmp_path / 'service.db')
     service = ScanService(store, Settings())
-    request = ScanRequest(runtime='demo', assessor='openrouter')
+    async def collect(*args):
+        return evidence()
+    monkeypatch.setattr('sentinel.service.collect_wasmer', collect)
+    request = ScanRequest(assessor='openrouter')
     async def run():
         await service.lock.acquire()
         store.create_scan('attribution', request)

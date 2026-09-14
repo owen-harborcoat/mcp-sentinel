@@ -6,8 +6,8 @@ warrant alerts. Description/schema drift is one input, never the verdict.
 
 **Implemented:** real Wasmer execution of the owned Helix MCP fixture, official
 MCP SDK client tests, SQLite event history, scan evidence, agent assessment adapter,
-alert lifecycle, and notification previews. The local dashboard works without API
-keys using a visibly labeled deterministic demo assessor. OpenRouter is the preferred live assessor; Gemini remains optional. Notification
+alert lifecycle, and gated notification delivery. Every scan executes Wasmer and
+requires a configured live model provider. OpenRouter is preferred; Gemini remains optional. Notification
 adapters are tested with mocked providers. See RESUME.md for live verification.
 
 **Baseline assessment, corrected:** 15 runs contained visible security concerns:
@@ -40,20 +40,35 @@ WASMER_NODE to a Node 24+ executable if PATH points to an older version.
 The first scan downloads the pinned public Wasmer Python package; later scans use
 the runtime cache. No Wasmer API key is required for local SDK execution.
 
-Select **Wasmer / Demo (no model)** for the original four deterministic development cases:
-
-| Scenario | Execution evidence | Demo assessment |
-|---|---|---|
-| Clean | Normal tools and repeatable output | No alert |
-| Instruction clarification | Description changes harmlessly | No alert |
-| Delayed instruction poisoning | After three calls, instructions seek key material and expose export | High alert |
-| Behavior change | Output changes while metadata stays stable | Medium alert |
+Select **Wasmer / OpenRouter** and choose an owned test case. Runtime simulation
+and the deterministic assessor have been removed. A missing model key blocks a
+scan; Wasmer or provider failures produce failed scans with no fallback.
 
 Open evidence, acknowledge/resolve/reopen an alert, and inspect the event timeline.
-Repeat a finding to see occurrence deduplication. External notifications default
-to previews. Demo assessments cannot send externally even when live mode is enabled.
-OpenRouter is selected automatically when its key is configured. Otherwise the UI
-selects the labeled demo assessor. Gemini remains available as an alternative.
+Repeat a finding to see occurrence deduplication. External notifications stay off
+until credentials and explicit enablement are configured; disabled channels do not
+create preview attempts. Historical demo/preview records retain their original
+provenance and are labeled as historical in the dashboard.
+
+## Where it runs and internet requirements
+
+The browser renders the dashboard. FastAPI, SQLite, the custom Python scanner and
+the official MCP client run on the host. The scanner launches a Node process using
+`@wasmer/sdk/node`, which runs the owned Python MCP server inside a local Wasmer
+WebAssembly/WASIX guest. MCP requests and responses travel over stdin/stdout through
+the Node bridge. FastAPI's `/api/scans` route is application code, not a built-in
+security scanning feature. Neither FastAPI nor the model runs inside the guest or
+browser. This is not a Docker container or a cloud sandbox.
+
+Saved results are local. Wasmer's pinned package is downloaded initially and cached;
+local collection can reuse the cache. The full assessed scan requires internet for
+OpenRouter/Gemini. Optional external delivery also requires internet. Disabling the
+guest's network does not disable the host's model API requests. Fully offline
+end-to-end assessment is not implemented or verified.
+
+The target is still a deliberately synthetic MCP fixture executed live, with
+synthetic ticket data, attack instructions and fake key material. Removing runtime
+simulation does not turn this fixture into a third-party production target.
 
 ## Team handoff
 
@@ -108,6 +123,7 @@ security SMS is not promised free. See [alert setup](docs/ALERTS.md).
 
 The user-provided Wasmer token is stored in ignored local configuration, reserved
 for a future cloud integration; it is not injected into the sandbox.
-No remote is configured and no external messages or deployment have been performed.
+GitHub repository: https://github.com/owen-harborcoat/mcp-sentinel (private).
+No external notifications or application deployment have been performed.
 The confirmed event is September 13 at Entrepreneurs First, 501 Folsom, ending
 6 PM Pacific; see [EVENT.md](EVENT.md).

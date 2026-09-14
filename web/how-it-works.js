@@ -122,24 +122,28 @@ const slides = [
     ]
   },
   {
-    title: "Preview notifications",
+    title: "Enable notifications explicitly",
     bullets: ["SMS and Telegram use configured recipients.", "Sending requires credentials and explicit enablement."],
     draw: () => [
       box(27,72,202,79,'High / critical alert','Live model assessment'),
       rect(27,186,202,57,'scene-box dashed'),text(42,211,'Configured recipient','scene-small'),text(42,230,'Server settings','scene-mono'),
       line(229,110,351,110,'scene-line dashed'), path('M229 213 H287 V110','scene-line dashed'),
       rect(353,25,168,270,'scene-box strong',17),rect(410,37,54,4,'scene-fill',2),
-      text(437,71,'SMS PREVIEW','scene-title','middle'),rect(367,96,139,106),
+      text(437,71,'SMS NOTIFICATION','scene-title','middle'),rect(367,96,139,106),
       text(379,123,'MCP Sentinel','scene-small'),text(379,150,'HIGH · Alert <id>'),text(379,178,'Alert summary only','scene-small'),
-      text(437,241,'Preview only','scene-mono','middle'),line(415,277,459,277),
+      text(437,241,'Off until enabled','scene-mono','middle'),line(415,277,459,277),
     ]
   },
   {
-    title: "What runs today",
-    bullets: ["Local Wasmer, one model assessment and saved alert review.", "Scans cover the owned fixture; model reliability is still limited."],
+    title: "9/10 valid threat assessments succeeded",
+    bullets: ["Nine detected the threat; one missed it.", "Five additional runs errored: 9/15 detections overall."],
     draw: () => [
-      text(29,31,'IMPLEMENTED','scene-title'),
-      ...[['Local sandbox','Real Wasmer execution'],['Model review','One aggregate assessment'],['Investigation','SQLite events + alert lifecycle']].map(([label,detail],i) => group(rect(28,49+i*66,493,52),check(45,76+i*66),text(76,72+i*66,label),text(260,72+i*66,detail,'scene-small'))),
+      text(28, 31, 'RECORDED BASELINE · VISIBLE SECURITY CONCERNS', 'scene-title'),
+      text(28, 91, '90%', 'scene-result'), text(28, 119, 'Of assessments returning a valid judgment', 'scene-small'),
+      ...Array.from({length: 15}, (_, i) => rect(28 + (i % 10) * 49, i < 10 ? 153 : 206, 37, 30,
+        i < 9 ? 'scene-result-cell' : i === 9 ? 'scene-box' : 'scene-box dashed', 2)),
+      text(28, 279, '9 detected', 'scene-label'), text(207, 279, '1 missed', 'scene-label'),
+      text(382, 279, '5 errors', 'scene-label'),
     ]
   }
 ];
@@ -150,6 +154,7 @@ const count = document.querySelector('#slide-count');
 const previous = document.querySelector('#previous-slide');
 const next = document.querySelector('#next-slide');
 const motionToggle = document.querySelector('#motion-toggle');
+const architectureMotionToggle = document.querySelector('#architecture-motion-toggle');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let index = 0;
 let motionPaused = reducedMotion.matches;
@@ -172,12 +177,14 @@ const sections = slides.map((slide, position) => {
   heading.id = `slide-heading-${position + 1}`;
   const points = element('ul', 'slide-description');
   for (const point of slide.bullets) points.append(element('li', '', point));
-  copy.append(heading, points);
+  copy.append(points);
   const figure = element('figure', 'slide-visual');
   const svg = make('svg', {viewBox: '0 0 550 320', role: 'img', 'aria-labelledby': `scene-title-${position + 1}`});
   svg.append(make('title', {id: `scene-title-${position + 1}`}, slide.title), ...slide.draw());
   figure.append(svg);
-  section.append(copy, figure);
+  const content = element('div', 'slide-content');
+  content.append(copy, figure);
+  section.append(heading, content);
   stage.append(section);
   const button = element('button', 'progress-button');
   button.type = 'button';
@@ -205,15 +212,39 @@ function showSlide(position) {
 
 function updateMotion() {
   document.body.classList.toggle('motion-paused', motionPaused);
-  motionToggle.textContent = reducedMotion.matches ? 'Reduced motion' : motionPaused ? 'Play motion' : 'Pause motion';
-  motionToggle.setAttribute('aria-pressed', String(motionPaused));
-  motionToggle.disabled = reducedMotion.matches;
-  motionToggle.title = reducedMotion.matches ? 'Your system preference disables animation.' : '';
+  for (const toggle of [motionToggle, architectureMotionToggle]) {
+    toggle.textContent = reducedMotion.matches ? 'Reduced motion' : motionPaused ? 'Play motion' : 'Pause motion';
+    toggle.setAttribute('aria-pressed', String(motionPaused));
+    toggle.disabled = reducedMotion.matches;
+    toggle.title = reducedMotion.matches ? 'Your system preference disables animation.' : '';
+  }
 }
 
 previous.addEventListener('click', () => showSlide(index - 1));
 next.addEventListener('click', () => showSlide(index + 1));
-motionToggle.addEventListener('click', () => { motionPaused = !motionPaused; updateMotion(); });
+const deck = document.querySelector('#presentation');
+const fullscreenToggle = document.querySelector('#fullscreen-toggle');
+const presentationStatus = document.querySelector('#presentation-status');
+if (!document.fullscreenEnabled) {
+  fullscreenToggle.disabled = true;
+  fullscreenToggle.title = 'Fullscreen is not available in this browser.';
+}
+fullscreenToggle.addEventListener('click', async () => {
+  try {
+    presentationStatus.hidden = true;
+    if (document.fullscreenElement === deck) await document.exitFullscreen();
+    else await deck.requestFullscreen();
+  } catch {
+    presentationStatus.textContent = 'Fullscreen could not open. Try opening this page in a browser tab.';
+    presentationStatus.hidden = false;
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  const active = document.fullscreenElement === deck;
+  fullscreenToggle.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
+  fullscreenToggle.setAttribute('aria-pressed', String(active));
+});
+for (const toggle of [motionToggle, architectureMotionToggle]) toggle.addEventListener('click', () => { motionPaused = !motionPaused; updateMotion(); });
 reducedMotion.addEventListener('change', () => { motionPaused = reducedMotion.matches; updateMotion(); });
 document.addEventListener('keydown', (event) => {
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
@@ -227,3 +258,51 @@ document.addEventListener('keydown', (event) => {
 });
 showSlide(0);
 updateMotion();
+
+
+// Illustrates the architecture only; it does not start a scan or read live events.
+const architecture = document.querySelector('.architecture');
+const system = document.querySelector('.system-design');
+const packets = system.querySelector('.architecture-packets');
+const phaseDetail = document.querySelector('#architecture-step-detail');
+const phases = [
+  {from: 'fastapi', to: 'browser', duration: 2400, detail: 'FastAPI serves the dashboard to your browser.'},
+  {from: 'fastapi', to: 'node', duration: 2400, detail: 'The Python scanner launches a fresh Node.js worker for the scan.'},
+  {from: 'node', to: 'wasmer', duration: 3600, detail: 'Node runs the test MCP in Wasmer. The Python scanner collects tool responses over stdio.'},
+  {from: 'fastapi', to: 'model', duration: 3200, detail: 'After the sandbox closes, FastAPI sends the evidence to the model for assessment.'},
+  {from: 'fastapi', to: 'sqlite', duration: 2400, detail: 'The backend saves the assessment and any alerts in SQLite; events are saved throughout the scan.'},
+  {from: 'fastapi', to: 'browser', duration: 2400, detail: 'The dashboard retrieves saved results from FastAPI so you can inspect the evidence and alerts.'},
+].map(phase => {
+  const edge = system.querySelector(`[data-from="${phase.from}"][data-to="${phase.to}"]`);
+  return {...phase, edge, length: edge.getTotalLength()};
+});
+const cycleLength = phases.reduce((total, phase) => total + phase.duration, 0);
+let flowTime = 0, lastFrame = null, activePhase = -1, architectureVisible = true;
+new IntersectionObserver(entries => { architectureVisible = entries[0].isIntersecting; }).observe(architecture);
+function drawArchitecture(now) {
+  const delta = lastFrame === null ? 0 : Math.min(now - lastFrame, 100);
+  lastFrame = now;
+  if (!motionPaused && architectureVisible && !document.hidden) flowTime = (flowTime + delta) % cycleLength;
+  let remaining = flowTime, phaseIndex = 0;
+  while (remaining >= phases[phaseIndex].duration) remaining -= phases[phaseIndex++].duration;
+  const phase = phases[phaseIndex];
+  if (phaseIndex !== activePhase) {
+    activePhase = phaseIndex;
+    for (const node of system.querySelectorAll('[data-node]')) node.classList.toggle('is-active', [phase.from, phase.to].includes(node.dataset.node));
+    for (const edge of system.querySelectorAll('[data-from]')) edge.classList.toggle('is-active', edge === phase.edge);
+    for (const label of architecture.querySelectorAll('[data-phase]')) label.classList.toggle('is-active', Number(label.dataset.phase) === phaseIndex);
+    const color = getComputedStyle(system.querySelector(`[data-node="${phase.to}"]`)).getPropertyValue('--node-color');
+    architecture.style.setProperty('--flow-color', color);
+    phaseDetail.textContent = phase.detail;
+  }
+  packets.classList.toggle('is-running', !reducedMotion.matches);
+  const progress = remaining / phase.duration;
+  [...packets.children].forEach((packet, i) => {
+    const position = Math.max(0, progress - (2 - i) * .07);
+    const point = phase.edge.getPointAtLength(position * phase.length);
+    packet.setAttribute('cx', point.x);
+    packet.setAttribute('cy', point.y);
+  });
+  requestAnimationFrame(drawArchitecture);
+}
+requestAnimationFrame(drawArchitecture);

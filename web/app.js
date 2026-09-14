@@ -1,9 +1,17 @@
-import {timelineLayout, eventLevel, eventLabel, preferredEvent, tooltipPosition, dashboardStats, scanContextLabel} from './timeline.js';
+import {timelineLayout, eventLevel, eventLabel, preferredEvent, tooltipPosition, dashboardStats, scanContextLabel, activeScanProgress} from './timeline.js';
 
 const $ = id => document.getElementById(id);
-const state = {overview:{scans:[],alerts:[],deliveries:[],stats:{}},events:[],cursor:0,config:{},cases:{},ready:false,seen:new Set(),notifications:false,selected:null,selectionDismissed:false,layout:{nodes:[]}};
+const state = {overview:{scans:[],alerts:[],deliveries:[],stats:{}},events:[],cursor:0,config:{},cases:{},ready:false,seen:new Set(),notifications:false,selected:null,selectionDismissed:false,progress:null,activeScanId:null,followScanId:null,submitting:false,layout:{nodes:[]}};
 const cache = {};
 const levels = {critical:4,high:3,medium:2,low:1,info:0};
+const caseNames = {
+  clean:'Normal workflow (control)', benign:'Harmless clarification (control)',
+  poison:'Credential-seeking tool poisoning', behavior:'Data-routing instruction in output',
+  ticket_update:'Normal ticket update (control)', quoted_report:'Quoted attack report (control)',
+  shadow:'Hidden email BCC instruction', handoff:'Private-data disclosure request',
+  encoded:'Encoded credential disclosure instruction', audit_override:'Forged system assessment override',
+  write_retarget:'Missing write readback (functional)', late_trigger:'Delayed attack beyond scan window',
+};
 const motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 function el(tag, cls, text) {const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
 function time(value) {return new Date(value).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
@@ -28,7 +36,7 @@ async function detail(id, alertId=null) {
   const scan=await api('/scans/'+id), body=$('detail-body');body.replaceChildren();
   $('detail-title').textContent=label(scan);
   const meta=el('div','detail-meta');
-  meta.append(el('span','mono',scan.id.slice(0,8)),el('span','',date(scan.created_at)+' '+time(scan.created_at)),el('span','',scan.runtime==='wasmer'?'Wasmer':'Simulation'),el('span','',scan.result?.provenance||scan.assessor));
+  meta.append(el('span','mono',scan.id.slice(0,8)),el('span','',date(scan.created_at)+' '+time(scan.created_at)),el('span','',scan.runtime==='wasmer'?'Wasmer':'Historical simulation'),el('span','',scan.result?.provenance||scan.assessor));
   body.append(meta);
   if(scan.error)body.append(el('p','',scan.error));
   if(scan.result) {
@@ -41,11 +49,12 @@ async function detail(id, alertId=null) {
       const act=async action=>{await api(`/alerts/${alert.id}/actions`,{action});await refresh();await detail(alert.scan_id,alert.id);};
       if(alert.status==='open')actions.append(button('Acknowledge',()=>act('acknowledge'),''));
       actions.append(button(alert.status==='resolved'?'Reopen':'Resolve',()=>act(alert.status==='resolved'?'reopen':'resolve'),''));
-      if(['high','critical'].includes(alert.severity)&&alert.status!=='resolved') {
+      if(state.config.live_notifications&&['high','critical'].includes(alert.severity)&&alert.status!=='resolved'&&!alert.provenance.startsWith('demo')) {
         const channels=el('details');channels.append(el('summary','','Notifications'));
         const deliveryActions=el('div','detail-actions');
         for(const [channel,name] of [['telegram','Telegram'],['twilio','SMS']]) {
-          deliveryActions.append(button((state.config.live_notifications?'Send ':'Preview ')+name,async()=>{
+          if(!state.config[channel+'_ready'])continue;
+          deliveryActions.append(button('Send '+name,async()=>{
             await api(`/alerts/${alert.id}/deliveries`,{channel});await refresh();
           },''));
         }
@@ -95,8 +104,8 @@ function renderScans() {
   for(const scan of scans) {
     const row=el('tr');cell(row,time(scan.created_at),'mono muted');
     cell(row).append(button(label(scan),()=>detail(scan.id),'text-button scan-name'));
-    cell(row,scan.runtime==='wasmer'?'Wasmer':'Simulation','runtime');
-    cell(row,scan.assessor==='demo'?'Demo':scan.assessor==='openrouter'?'OpenRouter':'Gemini','muted');
+    cell(row,scan.runtime==='wasmer'?'Wasmer':'Historical simulation','runtime');
+    cell(row,scan.assessor==='demo'?'Historical demo':scan.assessor==='openrouter'?'OpenRouter':'Gemini','muted');
     cell(row,scan.completed_at?((new Date(scan.completed_at)-new Date(scan.created_at))/1000).toFixed(1)+'s':'—','mono muted');
     cell(row,scan.result?(scan.result.judgment.flag?'Flagged':'No alert'):scan.status,'severity');
     $('scan-list').append(row);
@@ -149,7 +158,7 @@ function renderInspector(event) {
   const header=el('div','inspector-header');header.append(el('h3','',event?eventLabel(event):'Event inspector'));
   if(event) {
     const close=el('button','inspector-close','×');close.type='button';close.id='clear-event';close.setAttribute('aria-label','Close event inspector');
-    close.addEventListener('click',()=>{hideEventTooltip();state.selected=null;state.selectionDismissed=true;renderInspector(null);updateEventSelection();$('timeline-scroll').focus({preventScroll:true});});header.append(close);
+    close.addEventListener('click',()=>{hideEventTooltip();state.followScanId=null;state.selected=null;state.selectionDismissed=true;renderInspector(null);updateEventSelection();$('timeline-scroll').focus({preventScroll:true});});header.append(close);
   }
   panel.append(header);
   if(!event) {panel.append(el('p','inspector-empty',state.layout.nodes.length?'Select an event to inspect its detail and scan evidence.':'No events match the current filters.'));return;}
@@ -173,7 +182,7 @@ function revealEvent(id,behavior=motion()) {
   if(node.x-16<scroller.scrollLeft||right>scroller.scrollLeft+scroller.clientWidth)scroller.scrollTo({left:Math.max(0,node.x-scroller.clientWidth*.3),behavior});
 }
 function inspectEvent(event,{reveal=false,focus=false}={}) {
-  hideEventTooltip();state.selected=event.id;state.selectionDismissed=false;
+  hideEventTooltip();state.followScanId=null;state.selected=event.id;state.selectionDismissed=false;
   updateEventSelection();renderInspector(event);
   if(reveal)revealEvent(event.id);
   if(focus)$('timeline-svg').querySelector(`[data-event="${event.id}"]`)?.focus({preventScroll:true});
@@ -193,13 +202,14 @@ function matchingEvents() {
   return state.events.filter(e=>(filter==='all'||(filter==='finding'?eventLevel(e)!=='normal':e.kind.includes(filter)))&&`${e.kind} ${e.detail} ${e.scan_id}`.toLowerCase().includes(term));
 }
 function renderEvents() {
-  const signature=JSON.stringify([state.cursor,$('event-filter').value,$('search').value,$('zoom').value]);
+  const signature=JSON.stringify([state.cursor,$('event-filter').value,$('search').value,$('zoom').value,state.progress,state.followScanId]);
   if(cache.events===signature)return;
   const controls=JSON.stringify([$('event-filter').value,$('search').value,$('zoom').value]);
   const initial=!cache.events, controlsChanged=cache.eventControls!==controls;cache.events=signature;cache.eventControls=controls;
   const events=matchingEvents(), layout=timelineLayout(events,Number($('zoom').value));
   state.layout=layout;
-  const selected=state.selectionDismissed?null:preferredEvent(events,state.selected);state.selected=selected?.id??null;
+  const following=state.followScanId?events.findLast(event=>event.scan_id===state.followScanId):null;
+  const selected=following||(state.selectionDismissed?null:preferredEvent(events,state.selected));state.selected=selected?.id??null;
   const active=document.activeElement, focusedNode=active?.closest('.event-node'), focusedLog=active?.closest('.event-log-button');
   const restoreFocus=focusedNode?{id:focusedNode.dataset.event,type:'node'}:focusedLog?{id:focusedLog.closest('.event-row').dataset.event,type:'log'}:null;
   hideEventTooltip();
@@ -207,6 +217,15 @@ function renderEvents() {
   $('event-count').textContent=events.length;$('timeline-empty').hidden=events.length>0;$('timeline-scroll').hidden=!events.length;
   $('timeline-range').textContent=events.length?date(events[0].ts)+' · '+time(events[0].ts)+' – '+time(events.at(-1).ts):'';
   const svg=$('timeline-svg');svg.replaceChildren();svg.setAttribute('width',layout.width);svg.setAttribute('viewBox',`0 0 ${layout.width} 220`);
+  svg.setAttribute('aria-busy',String(Boolean(state.progress)));
+  const defs=svgEl('defs');
+  for(const level of ['warning','emergency']) {
+    const gradient=svgEl('linearGradient',{id:`alert-gradient-${level}`,x1:'0%',y1:'100%',x2:'0%',y2:'0%'});
+    gradient.append(svgEl('stop',{offset:'0%',class:`gradient-${level}`,'stop-opacity':'0'}),
+      svgEl('stop',{offset:'100%',class:`gradient-${level}`}));
+    defs.append(gradient);
+  }
+  svg.append(defs);
   svg.append(svgEl('path',{d:`M 28 110 H ${layout.width-30}`,class:'trunk'}));
   for(const [i,node] of layout.nodes.entries()) {
     const {event,x,level,branchY,scanBoundary}=node;
@@ -222,10 +241,15 @@ function renderEvents() {
       group.append(svgEl('path',{d,class:'hit-line',fill:'none',stroke:'transparent','stroke-width':14,'pointer-events':'stroke'}),svgEl('path',{d,class:'branch'}));
       group.append(svgEl('circle',{cx:x+120,cy:branchY,r:12,class:'hit'}));
       group.append(svgEl('circle',{cx:x+120,cy:branchY,r:3,class:'branch-dot'}));
-      const severity=event.severity||'medium';
-      group.append(svgEl('text',{x:x+32,y:branchY-13,class:'event-label'},event.kind==='SCAN_FAILED'?'Scan failed':severity[0].toUpperCase()+severity.slice(1)+' finding'));
+      group.append(svgEl('text',{x:x+32,y:branchY-13,class:'event-label'},event.kind==='SCAN_FAILED'?'Scan failed':'Alert'));
     }
     group.append(svgEl('circle',{cx:x,cy:110,r:scanBoundary?4:3,class:'dot'}));
+    if(event.id===state.progress?.event?.id) {
+      group.classList.add('active-event');
+      group.setAttribute('aria-label',group.getAttribute('aria-label')+' · Scan running');
+      group.append(svgEl('circle',{cx:x,cy:110,r:9,class:'activity-track','aria-hidden':'true'}),
+        svgEl('circle',{cx:x,cy:110,r:9,class:'activity-ring','aria-hidden':'true'}));
+    }
     group.addEventListener('click',()=>inspectEvent(event));
     group.addEventListener('pointerenter',()=>showEventTooltip(event,group));
     group.addEventListener('pointerleave',postponeTooltipHide);
@@ -252,7 +276,7 @@ function renderEvents() {
     $('event-list').append(row);
   }
   updateEventSelection();renderInspector(selected);updateTimelineWindow();
-  if(controlsChanged&&selected)revealEvent(selected.id,'auto');
+  if((controlsChanged||following)&&selected)revealEvent(selected.id,'auto');
   if(restoreFocus) {
     const target=restoreFocus.type==='node'?svg.querySelector(`[data-event="${restoreFocus.id}"]`):$('event-list').querySelector(`[data-event="${restoreFocus.id}"] .event-log-button`);
     // Polling preserves keyboard focus without reopening a dismissed preview.
@@ -267,10 +291,11 @@ function renderStatus() {
 }
 function renderDeliveries() {
   const signature=JSON.stringify(state.overview.deliveries);if(cache.deliveries===signature)return;cache.deliveries=signature;
-  $('delivery-list').replaceChildren();$('delivery-count').textContent=state.overview.deliveries.length;
-  for(const d of state.overview.deliveries) {
+  const deliveries=state.overview.deliveries.filter(d=>d.status!=='dry_run');
+  $('delivery-list').replaceChildren();$('delivery-count').textContent=deliveries.length;
+  for(const d of deliveries) {
     const row=el('tr');cell(row,time(d.created_at),'mono muted');cell(row,'#'+d.alert_id,'mono');
-    cell(row,d.channel==='twilio'?'Twilio SMS':'Telegram');cell(row,d.status==='dry_run'?'Preview':d.status);cell(row,d.detail,'muted');$('delivery-list').append(row);
+    cell(row,d.channel==='twilio'?'Twilio SMS':'Telegram');cell(row,d.status);cell(row,d.detail,'muted');$('delivery-list').append(row);
   }
 }
 function notifyNewAlerts() {
@@ -282,24 +307,56 @@ function notifyNewAlerts() {
     state.seen.add(key);
   }
 }
-let refreshing=false;
-async function refresh() {
-  if(refreshing)return;refreshing=true;
-  try {
+function renderScanActivity() {
+  const status=$('scan-activity');
+  const text=state.progress?'Running · '+(state.progress.event?eventLabel(state.progress.event):'Initializing'):
+    state.submitting?'Starting scan…':'';
+  status.hidden=!text;
+  if(status.textContent!==text)status.textContent=text;
+  $('run-scan').disabled=state.submitting||state.overview.running||!state.config[$('assessor').value+'_ready'];
+  $('run-scan').textContent=state.submitting?'Starting…':state.overview.running?'Scanning…':'Run scan';
+}
+function resetTimelineFilters() {$('event-filter').value='all';$('search').value='';}
+let refreshing=null;
+function refresh(force=false) {
+  if(refreshing)return force?refreshing.then(()=>refresh()):refreshing;
+  refreshing=(async()=>{
     state.overview=await api('/overview');
     let more=true;while(more){const page=await api(`/events?since_id=${state.cursor}&limit=500`);state.events.push(...page.events);state.cursor=page.next_since_id;more=page.events.length===500;}
     state.events=state.events.slice(-500);
-    $('run-scan').disabled=state.overview.running;$('run-scan').textContent=state.overview.running?'Scanning…':'Run scan';
+    state.progress=activeScanProgress(state.overview.scans,state.events);
+    if(state.progress&&state.progress.scanId!==state.activeScanId) {
+      state.followScanId=state.progress.scanId;state.selectionDismissed=false;resetTimelineFilters();
+    }
+    state.activeScanId=state.progress?.scanId||null;
+    renderScanActivity();
     renderAlerts();renderScans();renderEvents();renderStatus();renderDeliveries();notifyNewAlerts();state.ready=true;
+    if(!state.progress)state.followScanId=null;
     $('connection').textContent='Connected';
-  }finally{refreshing=false;}
+  })().finally(()=>{refreshing=null;});
+  return refreshing;
 }
-$('scan-form').addEventListener('submit',async e=>{e.preventDefault();$('run-scan').disabled=true;try{await api('/scans',{scenario:$('scenario').value,runtime:$('runtime').value,assessor:$('assessor').value});error('');await refresh();}catch(err){error(err.message);$('run-scan').disabled=false;}});
+$('scan-form').addEventListener('submit',async e=>{
+  e.preventDefault();if(state.submitting||state.overview.running)return;
+  state.submitting=true;renderScanActivity();
+  try {
+    const scan=await api('/scans',{scenario:$('scenario').value,runtime:'wasmer',assessor:$('assessor').value});
+    state.followScanId=scan.scan_id;state.selectionDismissed=false;resetTimelineFilters();
+    $('timeline').scrollIntoView({block:'start',behavior:motion()});
+    error('');await refresh(true);
+  }catch(err){error(err.message);}
+  finally{state.submitting=false;renderScanActivity();}
+});
+$('assessor').addEventListener('change',renderScanActivity);
 for(const id of ['alert-filter','severity-filter'])$(id).addEventListener('change',renderAlerts);
 $('alert-search').addEventListener('input',renderAlerts);$('scan-filter').addEventListener('change',renderScans);
-for(const id of ['event-filter','zoom'])$(id).addEventListener('change',renderEvents);
-$('search').addEventListener('input',renderEvents);
-$('latest').addEventListener('click',()=>{const latest=state.layout.nodes.at(-1);if(latest)inspectEvent(latest.event,{reveal:true});});
+$('zoom').addEventListener('change',renderEvents);
+$('event-filter').addEventListener('change',()=>{state.followScanId=null;renderEvents();});
+$('search').addEventListener('input',()=>{state.followScanId=null;renderEvents();});
+$('latest').addEventListener('click',()=>{
+  if(state.progress){state.followScanId=state.progress.scanId;state.selectionDismissed=false;resetTimelineFilters();cache.events=null;renderEvents();}
+  else {const latest=state.layout.nodes.at(-1);if(latest)inspectEvent(latest.event,{reveal:true});}
+});
 $('previous-event')?.addEventListener('click',()=>navigateEvent(-1));
 $('next-event')?.addEventListener('click',()=>navigateEvent(1));
 $('timeline-scroll').addEventListener('scroll',()=>{hideEventTooltip();updateTimelineWindow();},{passive:true});
@@ -320,10 +377,12 @@ const observer=new IntersectionObserver(entries=>{
 for(const section of document.querySelectorAll('main section[id]'))observer.observe(section);
 try {
   const [config,cases]=await Promise.all([api('/config'),api('/scenarios')]);state.config=config;
-  for(const c of cases){state.cases[c.id]=c.label;$('scenario').append(option(c.id,c.label));}
-  $('scenario').value='poison';$('assessor').value=config.openrouter_ready?'openrouter':'demo';
-  $('telegram-state').textContent=config.live_notifications&&config.telegram_ready?'Enabled':'Preview only';
-  $('twilio-state').textContent=config.live_notifications&&config.twilio_ready?'Enabled':'Preview only';
+  for(const c of cases){const name=caseNames[c.id]||c.label;state.cases[c.id]=name;$('scenario').append(option(c.id,name));}
+  $('scenario').value='poison';$('assessor').value=config.openrouter_ready?'openrouter':config.gemini_ready?'gemini':'openrouter';
+  for(const choice of $('assessor').options)choice.disabled=!config[choice.value+'_ready'];
+  if(!config.openrouter_ready&&!config.gemini_ready)error('Configure an OpenRouter or Gemini API key to run scans.');
+  $('telegram-state').textContent=config.live_notifications&&config.telegram_ready?'Enabled':'Off';
+  $('twilio-state').textContent=config.live_notifications&&config.twilio_ready?'Enabled':'Off';
   await refresh();
 }catch(e){error(e.message);$('connection').textContent='Disconnected';}
 setInterval(()=>refresh().catch(e=>{error(e.message);$('connection').textContent='Disconnected';}),2000);

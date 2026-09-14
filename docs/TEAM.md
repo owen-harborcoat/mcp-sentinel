@@ -2,7 +2,7 @@
 
 The user confirmed both teammates are full stack; split by user-visible feature.
 The existing branch names are retained to avoid disrupting checkouts. Merge the
-updated main into each branch before continuing. No remote has been configured.
+updated main into each branch before continuing. The origin remote is https://github.com/owen-harborcoat/mcp-sentinel (private).
 
 | Responsibility | A: Sandbox test lab | B: Monitoring and alerts |
 |---|---|---|

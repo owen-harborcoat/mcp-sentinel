@@ -6,11 +6,11 @@ import httpx
 import pytest
 
 from sentinel.app import create_app
-from sentinel.assessor import SYSTEM, assess_demo, assess_gemini, validate_judgment
+from sentinel.assessor import SYSTEM, assess_gemini, validate_judgment
 from sentinel.config import Settings
 from sentinel.models import Evidence, Judgment, ScanRequest
 from sentinel.notifications import deliver
-from sentinel.scanner import collect_demo, redact
+from sentinel.scanner import redact
 from sentinel.service import ScanService
 from sentinel.store import Store
 
@@ -26,23 +26,31 @@ def store(tmp_path):
     return Store(tmp_path / 'test.db')
 
 
-def test_metadata_change_does_not_automatically_alert():
+@pytest.mark.parametrize('metadata_changed,flag', [(True, False), (False, True)])
+def test_service_uses_model_judgment_not_metadata_delta(store, monkeypatch, metadata_changed, flag):
+    async def collect(settings, request, scan_id, emit):
+        return [Evidence(id='e1', kind='METADATA_OBSERVED', summary='Comparison',
+                         data={'changed': metadata_changed})]
+    async def assess(settings, rows):
+        assert rows[0].data['changed'] is metadata_changed
+        if flag:
+            return judgment()
+        return Judgment(flag=False, severity='info', category='none', title='No concern',
+                        rationale='The evidence supports ordinary operation.', evidence_ids=['e1'],
+                        recommendation='Retain the evidence.')
+    # Isolated unit-test dependencies only; no substitute collector exists in the app.
+    monkeypatch.setattr('sentinel.service.collect_wasmer', collect)
+    monkeypatch.setattr('sentinel.service.assess_openrouter', assess)
+    service = ScanService(store, Settings())
+    request = ScanRequest()
     async def run():
-        rows = await collect_demo(Settings(), ScanRequest(scenario='benign', runtime='demo'),
-                                  's1', lambda *args: None)
-        assert rows[1].data['changed']
-        result = await assess_demo(Settings(), rows)
-        assert not result.flag
+        await service.lock.acquire()
+        store.create_scan('judgment', request)
+        await service.run('judgment', request)
     asyncio.run(run())
-
-
-def test_behavior_without_metadata_drift_can_alert():
-    async def run():
-        rows = await collect_demo(Settings(), ScanRequest(scenario='behavior', runtime='demo'),
-                                  's1', lambda *args: None)
-        assert not rows[1].data['changed']
-        assert (await assess_demo(Settings(), rows)).category == 'behavior'
-    asyncio.run(run())
+    assert store.scan('judgment')['result']['judgment']['flag'] is flag
+    assert bool(store.alerts()) is flag
+    assert not store.deliveries()
 
 
 def test_agent_cannot_invent_evidence_or_recipients():
@@ -110,19 +118,16 @@ def test_twilio_custom_sms_gate_and_fixed_message(store):
     assert store.deliveries()[0]['status'] == 'accepted'
 
 
-def test_preview_never_contacts_provider_and_deduplicates(store):
+def test_disabled_delivery_never_contacts_provider_or_creates_preview(store):
     calls = []
     transport = httpx.MockTransport(lambda request: calls.append(request))
-    alert, _ = store.upsert_alert('s1', 'same', judgment(), 'demo:test')
-    async def run():
-        for _ in range(3):
-            await deliver(store, Settings(), alert, 'twilio', transport)
-    asyncio.run(run())
-    assert calls == [] and len(store.deliveries()) == 1
-    assert store.deliveries()[0]['status'] == 'dry_run'
+    alert, _ = store.upsert_alert('s1', 'same', judgment(), 'gemini:test')
+    with pytest.raises(ValueError, match='disabled'):
+        asyncio.run(deliver(store, Settings(), alert, 'twilio', transport))
+    assert calls == [] and store.deliveries() == []
 
 
-def test_live_demo_assessment_cannot_send(store):
+def test_historical_demo_assessment_cannot_send(store):
     alert, _ = store.upsert_alert('s1', 'same', judgment(), 'demo:test')
     settings = Settings(live_notifications=True, telegram_token='123:abc', telegram_chat='42')
     with pytest.raises(ValueError):
@@ -165,7 +170,7 @@ def test_uncertain_delivery_is_never_automatically_retried(store):
 
 def test_restart_marks_inflight_uncertain_and_retains_alerts(store):
     alert, _ = store.upsert_alert('s1', 'same', judgment(), 'gemini:test')
-    store.claim_delivery(alert, 'telegram', True)
+    store.claim_delivery(alert, 'telegram')
     store.create_scan('s2', ScanRequest())
     reopened = Store(store.path)
     assert reopened.deliveries()[0]['status'] == 'unknown'
@@ -200,7 +205,10 @@ def test_assessment_failure_persists_failure_not_clear(store, monkeypatch):
     async def broken(*args):
         raise ValueError('secret-do-not-log')
     monkeypatch.setattr('sentinel.service.assess_gemini', broken)
-    request = ScanRequest(runtime='demo', assessor='gemini')
+    async def collect(*args):
+        return [Evidence(id='e1', kind='TOOL_TEST', summary='Unit-test evidence')]
+    monkeypatch.setattr('sentinel.service.collect_wasmer', collect)
+    request = ScanRequest(assessor='gemini')
     service = ScanService(store, Settings())
     async def run():
         await service.lock.acquire()
@@ -211,16 +219,24 @@ def test_assessment_failure_persists_failure_not_clear(store, monkeypatch):
     assert not store.alerts() and 'secret-do-not-log' not in str(store.events())
 
 
-def test_api_end_to_end_and_origin_protection(tmp_path):
+def test_api_orchestration_with_mocked_dependencies_and_origin_protection(tmp_path, monkeypatch):
+    async def collect(settings, request, scan_id, emit):
+        return [Evidence(id='e1', kind='TOOL_TEST', summary='Unit-test evidence')]
+    async def assess(*args):
+        return judgment()
+    monkeypatch.setattr('sentinel.service.collect_wasmer', collect)
+    monkeypatch.setattr('sentinel.service.assess_openrouter', assess)
     async def run():
-        app = create_app(Settings(database=str(tmp_path / 'api.db')))
+        app = create_app(Settings(database=str(tmp_path / 'api.db'), openrouter_key='test-key'))
         async with app.router.lifespan_context(app), httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url='http://127.0.0.1') as client:
             bad = await client.post('/api/scans', json={}, headers={'Origin': 'https://hostile.test'})
             assert bad.status_code == 403
             bad = await client.post('/api/scans', json={'target': 'https://unapproved.test'})
             assert bad.status_code == 422
-            response = await client.post('/api/scans', json={'runtime': 'demo', 'scenario': 'poison'})
+            for removed in ({'runtime': 'demo'}, {'assessor': 'demo'}, {'runtime': 'host'}):
+                assert (await client.post('/api/scans', json=removed)).status_code == 422
+            response = await client.post('/api/scans', json={'scenario': 'poison'})
             scan_id = response.json()['scan_id']
             for _ in range(100):
                 scan = (await client.get('/api/scans/' + scan_id)).json()

@@ -42,6 +42,16 @@ export function preferredEvent(events, selectedId = null) {
     || null;
 }
 
+export function activeScanProgress(scans, events) {
+  const scan = [...scans].filter(item => item.status === 'running')
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  if (!scan) return null;
+  const ownEvents = events.filter(event => event.scan_id === scan.id).sort((a, b) => a.id - b.id);
+  // Events can finish a scan after the overview snapshot was fetched.
+  if (ownEvents.some(event => ['SCAN_COMPLETED', 'SCAN_FAILED'].includes(event.kind))) return null;
+  return {scanId: scan.id, event: ownEvents.at(-1) || null};
+}
+
 export function tooltipPosition(anchor, width, height, viewportWidth, viewportHeight) {
   const edge = 12;
   const left = Math.max(edge, Math.min(anchor.left + anchor.width / 2 - width / 2, viewportWidth - width - edge));
@@ -53,7 +63,7 @@ export function tooltipPosition(anchor, width, height, viewportWidth, viewportHe
 export function dashboardStats(overview) {
   const scans = overview.scans || [], alerts = overview.alerts || [];
   const latest = [...scans].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
-  const runtime = latest ? (latest.runtime === 'wasmer' ? 'Wasmer' : latest.runtime === 'demo' ? 'Simulation' : latest.runtime) : 'No scans yet';
+  const runtime = latest ? (latest.runtime === 'wasmer' ? 'Wasmer' : latest.runtime === 'demo' ? 'Historical simulation' : latest.runtime) : 'No scans yet';
   const provenance = latest?.result?.provenance;
   return {
     scans: overview.stats?.scans ?? scans.length,
@@ -73,7 +83,7 @@ export function eventLabel(event) {
     AGENT_CLEARED: 'Reviewed', SCAN_COMPLETED: 'Scan completed', SCAN_FAILED: 'Scan failed',
     ALERT_OPENED: 'Alert opened', ALERT_REPEATED: 'Alert repeated', ALERT_OPEN: 'Alert reopened',
     ALERT_RESOLVED: 'Alert resolved', ALERT_ACKNOWLEDGED: 'Alert acknowledged',
-    NOTIFICATION_PREVIEW: 'Notification preview', NOTIFICATION_ACCEPTED: 'Notification accepted',
+    NOTIFICATION_PREVIEW: 'Historical notification preview', NOTIFICATION_ACCEPTED: 'Notification accepted',
     NOTIFICATION_UNKNOWN: 'Delivery uncertain', NOTIFICATION_FAILED: 'Delivery failed',
   };
   return names[event.kind] || event.kind.replaceAll('_', ' ').toLowerCase();

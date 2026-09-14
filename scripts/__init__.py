@@ -1,1 +1,1 @@
-"""Developer checks and, later, the reproducible demo runner."""
+"""Developer checks for the real Wasmer scanning pipeline."""

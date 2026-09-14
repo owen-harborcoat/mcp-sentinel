@@ -16,21 +16,117 @@
   </header>
   <main>
     <section class="architecture" aria-labelledby="architecture-heading">
-      <div class="section-heading"><h1 id="architecture-heading">How it works</h1></div>
+      <div class="section-heading"><h1 id="architecture-heading">How it works</h1><button id="architecture-motion-toggle" type="button" aria-pressed="false">Pause motion</button></div>
       <div class="architecture-scroll" tabindex="0" aria-label="System design. Scroll horizontally on smaller screens.">
-        <ol class="system-flow" aria-label="Scan data flow">
-          <li><span class="node-label">Fixed test runner</span><span>Official MCP client</span></li>
-          <li><span class="node-label">Local Wasmer guest</span><span>Owned Python fixture</span></li>
-          <li><span class="node-label">Model assessment</span><span>One model via OpenRouter</span></li>
-          <li><span class="node-label">SQLite + dashboard</span><span>Evidence, alerts, timeline</span></li>
-          <li class="optional-node"><span class="node-label">SMS / Telegram</span><span>Optional · preview only</span></li>
-        </ol>
+        <svg class="system-design" viewBox="0 0 1120 440" role="img" aria-labelledby="system-title system-description">
+          <title id="system-title">MCP Sentinel: six-component architecture</title>
+          <desc id="system-description">Python and FastAPI is the local backend: it serves the browser dashboard and runs the scanner. FastAPI launches a Node.js worker that runs the test MCP server inside a local Wasmer sandbox. FastAPI also sends collected evidence to an external model API and saves scans, events and alerts in local SQLite. Arrows point from each component to what it serves, launches or uses. The dashboard and Node worker are separate branches of FastAPI.</desc>
+          <defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#999"/></marker></defs>
+          <g class="system-node" data-node="browser">
+            <rect x="20" y="48" width="300" height="112"/>
+            <text class="system-caption" x="40" y="73">BROWSER</text>
+            <image class="technology-logo" href="/static/assets/mcp-sentinel.svg" x="40" y="84" width="28" height="28" aria-hidden="true"/>
+            <text x="84" y="103">Web dashboard</text>
+            <text class="system-detail" x="40" y="132">Start scans · review alerts</text>
+          </g>
+          <g class="system-node" data-node="fastapi">
+            <rect x="410" y="48" width="300" height="112"/>
+            <text class="system-caption" x="430" y="73">LOCAL BACKEND</text>
+            <image class="technology-logo" href="/static/assets/technology/python.svg" x="670" y="61" width="19" height="19" aria-hidden="true"/>
+            <image class="technology-logo" href="/static/assets/technology/fastapi.svg" x="430" y="84" width="28" height="28" aria-hidden="true"/>
+            <text x="474" y="103">Python / FastAPI</text>
+            <text class="system-detail" x="430" y="132">Serves dashboard · runs scanner</text>
+          </g>
+          <g class="system-node" data-node="node">
+            <rect x="800" y="48" width="300" height="112"/>
+            <text class="system-caption" x="820" y="73">LOCAL WORKER</text>
+            <image class="technology-logo" href="/static/assets/technology/nodedotjs.svg" x="820" y="84" width="28" height="28" aria-hidden="true"/>
+            <text x="864" y="103">Node.js</text>
+            <text class="system-detail" x="820" y="132">Wasmer SDK · launched per scan</text>
+          </g>
+          <g class="system-node" data-node="sqlite">
+            <rect x="20" y="280" width="300" height="112"/>
+            <text class="system-caption" x="40" y="305">LOCAL STORAGE</text>
+            <image class="technology-logo" href="/static/assets/technology/sqlite.svg" x="40" y="316" width="28" height="28" aria-hidden="true"/>
+            <text x="84" y="335">SQLite</text>
+            <text class="system-detail" x="40" y="364">Saved scans · events · alerts</text>
+          </g>
+          <g class="system-node" data-node="model">
+            <rect x="410" y="280" width="300" height="112"/>
+            <text class="system-caption" x="430" y="305">EXTERNAL SERVICE</text>
+            <image class="technology-logo" href="/static/assets/technology/openrouter.svg" x="430" y="316" width="28" height="28" aria-hidden="true"/>
+            <text x="474" y="335">Model API</text>
+            <text class="system-detail" x="430" y="364">OpenRouter · evidence assessment</text>
+          </g>
+          <g class="system-node sandbox-node" data-node="wasmer">
+            <rect x="800" y="280" width="300" height="112"/>
+            <text class="system-caption" x="820" y="305">LOCAL SANDBOX</text>
+            <image class="technology-logo" href="/static/assets/technology/wasmer.svg" x="820" y="316" width="28" height="28" aria-hidden="true"/>
+            <text x="864" y="335">Wasmer sandbox</text>
+            <text class="system-detail" x="820" y="364">Runs the Python test MCP</text>
+          </g>
+          <g class="system-edges">
+            <path data-from="fastapi" data-to="browser" d="M410 104 H322"/>
+            <path data-from="fastapi" data-to="node" d="M710 104 H798"/>
+            <path data-from="node" data-to="wasmer" d="M950 160 V278"/>
+            <path data-from="fastapi" data-to="model" d="M560 160 V278"/>
+            <path data-from="fastapi" data-to="sqlite" d="M470 160 V220 H170 V278"/>
+          </g>
+          <g class="system-edge-labels">
+            <text x="365" y="89" text-anchor="middle">Serves</text>
+            <text x="755" y="89" text-anchor="middle">Launches</text>
+            <text x="964" y="222">Runs MCP</text>
+            <text x="574" y="222">Sends evidence</text>
+            <text x="310" y="207" text-anchor="middle">Saves results</text>
+          </g>
+          <g class="architecture-packets" aria-hidden="true">
+            <circle class="flow-packet packet-trail" r="3"/>
+            <circle class="flow-packet packet-trail" r="4"/>
+            <circle class="flow-packet" r="5"/>
+          </g>
+        </svg>
       </div>
+      <div class="architecture-walkthrough" aria-label="Illustrated scan walkthrough">
+        <span class="walkthrough-label">SCAN WALKTHROUGH</span>
+        <div class="walkthrough-steps" aria-label="Scan stages">
+          <span data-phase="0">Serve dashboard</span><span data-phase="1">Launch worker</span><span data-phase="2">Run MCP</span><span data-phase="3">Assess evidence</span><span data-phase="4">Save results</span><span data-phase="5">Show results</span>
+        </div>
+        <p id="architecture-step-detail">FastAPI serves the dashboard to your browser.</p>
+      </div>
+    </section>
+
+    <section class="security-context" aria-labelledby="security-context-heading">
+      <div class="security-intro">
+        <h2 id="security-context-heading">Why MCP needs security</h2>
+        <p>MCP connects assistants to data and actions. A malicious server, tool description or returned message can abuse that access—even when the user's request is harmless.</p>
+      </div>
+      <div class="security-stories">
+        <article>
+          <p class="story-meta">SEP 2025 <span>Malicious package in the wild</span></p>
+          <h3>Emails copied in secret</h3>
+          <p>A fake Postmark MCP package added a hidden BCC recipient after initially clean releases. A trusted-looking tool became a channel for data theft.</p>
+          <a href="https://www.koi.ai/blog/postmark-mcp-npm-malicious-backdoor-email-theft" target="_blank" rel="noopener noreferrer">Read Koi's investigation <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <p class="story-meta">MAY 2025 <span>Research demonstration</span></p>
+          <h3>A public issue exposed private data</h3>
+          <p>Researchers put instructions in a GitHub issue that led an assistant using MCP to publish private repository information in a public pull request.</p>
+          <a href="https://invariantlabs.ai/blog/mcp-github-vulnerability" target="_blank" rel="noopener noreferrer">Read the GitHub MCP research <span aria-hidden="true">↗</span></a>
+        </article>
+        <article>
+          <p class="story-meta">APR 2025 <span>Research demonstration</span></p>
+          <h3>A harmless tool changed its behavior</h3>
+          <p>A sleeper MCP server changed its tool description to redirect WhatsApp messages and leak conversation data through another connected tool.</p>
+          <a href="https://invariantlabs.ai/blog/whatsapp-mcp-exploited" target="_blank" rel="noopener noreferrer">Read the WhatsApp MCP research <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+      <p class="security-takeaway">Test what tools return, limit what they can access, and keep evidence for review. Sentinel combines isolated execution with model-assessed alerts; sandboxing alone does not stop prompt injection. This prototype demonstrates the workflow on controlled test cases.</p>
     </section>
 
     <section id="presentation" class="deck" aria-labelledby="presentation-heading" aria-roledescription="carousel">
       <div class="deck-heading">
         <h2 id="presentation-heading">Presentation</h2>
+        <button id="fullscreen-toggle" type="button" aria-pressed="false">Fullscreen</button>
       </div>
       <div id="slide-stage" class="slide-stage" aria-live="off"></div>
       <div class="deck-footer">
@@ -42,6 +138,7 @@
           <button id="next-slide" class="arrow-button" type="button" aria-label="Next slide">→</button>
         </div>
       </div>
+      <p id="presentation-status" role="status" hidden></p>
     </section>
     <noscript><p class="noscript-note">Enable JavaScript to view the ten-slide presentation. The system diagram above remains available.</p></noscript>
     <footer class="powered-by"><a href="https://wasmer.io/" target="_blank" rel="noopener noreferrer"><span>Powered by</span> <strong class="wasmer-name">Wasmer</strong></a></footer>

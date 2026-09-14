@@ -1,9 +1,9 @@
 """Scan -> execution evidence -> agent judgment -> alert -> notification outbox."""
 import asyncio
 
-from sentinel.assessor import assess_demo, assess_gemini, assess_openrouter, validate_judgment
+from sentinel.assessor import assess_gemini, assess_openrouter, validate_judgment
 from sentinel.notifications import deliver, readiness
-from sentinel.scanner import collect_demo, collect_wasmer, digest
+from sentinel.scanner import collect_wasmer, digest
 
 
 class ScanService:
@@ -16,18 +16,15 @@ class ScanService:
         try:
             self.store.event(scan_id, 'SCAN_STARTED',
                 f'Helix / {request.scenario} / {request.runtime} / {request.assessor}')
-            collector = collect_wasmer if request.runtime == 'wasmer' else collect_demo
-            evidence = await collector(self.settings, request, scan_id, emit)
+            evidence = await collect_wasmer(self.settings, request, scan_id, emit)
             self.store.event(scan_id, 'ASSESSMENT_STARTED',
                              'Assessing test evidence; metadata changes are not automatic alerts')
-            assessor = {'gemini': assess_gemini, 'openrouter': assess_openrouter,
-                        'demo': assess_demo}[request.assessor]
+            assessor = {'gemini': assess_gemini, 'openrouter': assess_openrouter}[request.assessor]
             judgment = await assessor(self.settings, evidence)
             resolved_model = judgment._resolved_model
             judgment = validate_judgment(judgment.model_dump(), evidence)
             provenance = {'gemini': 'gemini:' + self.settings.gemini_model,
-                          'openrouter': 'openrouter:' + (resolved_model or self.settings.openrouter_model),
-                          'demo': 'demo:deterministic-test-double'}[request.assessor]
+                          'openrouter': 'openrouter:' + (resolved_model or self.settings.openrouter_model)}[request.assessor]
             result = {'evidence': [e.model_dump() for e in evidence],
                       'judgment': judgment.model_dump(), 'provenance': provenance,
                       'runtime': request.runtime, 'alert_id': None}
@@ -42,12 +39,10 @@ class ScanService:
                 result['alert_id'] = alert['id']
                 self.store.event(scan_id, 'ALERT_OPENED' if created else 'ALERT_REPEATED',
                                  f'Alert #{alert["id"]}: {judgment.title}', judgment.severity)
-                if created and judgment.severity in ('high', 'critical'):
+                if created and judgment.severity in ('high', 'critical') and self.settings.live_notifications:
                     for channel in ('telegram', 'twilio'):
-                        if not self.settings.live_notifications or readiness(self.settings, channel):  # noqa: SIM102
-                            # Demo verdicts never trigger a real external send.
-                            if not self.settings.live_notifications or request.assessor != 'demo':
-                                await deliver(self.store, self.settings, alert, channel)
+                        if readiness(self.settings, channel):
+                            await deliver(self.store, self.settings, alert, channel)
             self.store.finish_scan(scan_id, result=result)
             self.store.event(scan_id, 'SCAN_COMPLETED', 'Scan and assessment recorded')
         except asyncio.CancelledError:

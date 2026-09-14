@@ -39,9 +39,9 @@
       </div>
       <form id="scan-form" class="runbar">
         <label>Test case<select id="scenario"></select></label>
-        <label>Runtime<select id="runtime"><option value="wasmer">Wasmer</option><option value="demo">Simulation</option></select></label>
-        <label>Assessor<select id="assessor"><option value="openrouter">OpenRouter</option><option value="gemini">Gemini</option><option value="demo">Demo (no model)</option></select></label>
-        <button class="primary" id="run-scan" type="submit"><span>Run scan</span></button>
+        <label>Runtime<input id="runtime" value="Wasmer" readonly></label>
+        <label>Assessor<select id="assessor"><option value="openrouter">OpenRouter</option><option value="gemini">Gemini</option></select></label>
+        <button class="primary" id="run-scan" type="submit" disabled><span>Run scan</span></button>
       </form>
     </div>
 
@@ -57,7 +57,7 @@
       </div>
       <div class="timeline-workspace">
         <div class="timeline-chart">
-          <div class="timeline-key"><span id="timeline-range"></span><span class="legend"><i class="warning-dot"></i> Warning <i class="emergency-dot"></i> Emergency</span></div>
+          <div class="timeline-key"><span id="timeline-range"></span><span id="scan-activity" role="status" aria-live="polite" hidden></span></div>
           <div id="timeline-scroll" class="timeline-scroll" tabindex="0" aria-label="Scrollable event timeline" aria-describedby="timeline-hint">
             <svg id="timeline-svg" height="220" aria-label="Event sequence"></svg>
           </div>

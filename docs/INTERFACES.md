@@ -6,8 +6,8 @@ the current scan/alert API uses sentinel/models.py.
 
 ## Scan boundary
 
-POST /api/scans accepts scenario (clean/benign/poison/behavior), runtime
-(wasmer/demo), assessor (openrouter/gemini/demo), rejects extra fields, and returns
+POST /api/scans accepts one of twelve owned scenarios, runtime=wasmer,
+assessor=openrouter/gemini (default openrouter), rejects extra fields, and returns
 202 {scan_id,status}. One scan at a time; another receives 409.
 A missing selected provider key returns 409 before creating a scan. No caller-supplied target,
 URL, shell command, recipient or model API endpoint is accepted.
@@ -33,7 +33,8 @@ GET /api/health reports the scan-dashboard service; there is no /mcp proxy route
 
 POST /api/alerts/{id}/actions takes action acknowledge/resolve/reopen.
 POST /api/alerts/{id}/deliveries takes channel telegram/twilio.
-Notification previews use the same seam with LIVE_NOTIFICATIONS=0.
+When LIVE_NOTIFICATIONS=0 the delivery endpoint rejects the action without creating
+a delivery attempt. No new previews or simulation results are generated.
 Transitions and deliveries validate lifecycle/configuration; errors are surfaced
 rather than silently treated as successful.
 

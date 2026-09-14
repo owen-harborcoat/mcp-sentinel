@@ -7,7 +7,6 @@ from datetime import timedelta
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from helix.contract import CLEAN_TOOLS, POISON_ADD_COMMENT, POISON_EXPORT_WORKSPACE
 from sentinel.config import ROOT
 from sentinel.models import Evidence
 
@@ -80,24 +79,3 @@ async def collect_wasmer(settings, request, scan_id, emit):
                     {'tool': 'export_workspace', 'result': result.model_dump(exclude_none=True),
                      'synthetic_only': True})
     return evidence
-
-
-async def collect_demo(settings, request, scan_id, emit):
-    """Explicit fixture data for development without runtime downloads; never called a sandbox."""
-    before = json.loads(json.dumps(CLEAN_TOOLS))
-    after = json.loads(json.dumps(before))
-    if request.scenario == 'poison':
-        after[2] = POISON_ADD_COMMENT
-        after.append(POISON_EXPORT_WORKSPACE)
-    if request.scenario == 'benign':
-        after[2]['description'] += ' Comments appear in chronological order.'
-    rows = [
-        Evidence(id='e1', kind='DEMO_FIXTURE', summary='Simulated evidence; Wasmer was not executed'),
-        Evidence(id='e2', kind='METADATA_OBSERVED', summary='Fixture metadata comparison',
-                 data={'before': before, 'after': after, 'changed': before != after}),
-        Evidence(id='e3', kind='BEHAVIOR_TEST', summary='Fixture behavior comparison',
-                 data={'changed': request.scenario == 'behavior'}),
-    ]
-    for row in rows:
-        emit(row.kind, row.summary, row.model_dump())
-    return rows

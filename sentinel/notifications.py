@@ -1,4 +1,4 @@
-"""Fixed-recipient delivery adapters; dry-run first, with atomic attempt claims."""
+"""Fixed-recipient delivery adapters; explicit enablement and atomic attempt claims."""
 import re
 
 import httpx
@@ -20,15 +20,12 @@ async def deliver(store, settings, alert, channel, transport=None):
         raise ValueError('Resolved alerts do not send notifications')
     if SEVERITIES[alert['severity']] < SEVERITIES['high']:
         raise ValueError('External notifications require high or critical severity')
-    live = settings.live_notifications
-    if live and (not readiness(settings, channel) or alert['provenance'].startswith('demo')):
+    if not settings.live_notifications:
+        raise ValueError('External delivery is disabled; no message was attempted')
+    if not readiness(settings, channel) or alert['provenance'].startswith('demo'):
         raise ValueError('Live delivery requires configured channel and a real agent assessment')
-    attempt, claimed = store.claim_delivery(alert, channel, live)
+    attempt, claimed = store.claim_delivery(alert, channel)
     if not claimed:
-        return attempt
-    if not live:
-        store.event(alert['scan_id'], 'NOTIFICATION_PREVIEW',
-                    f'{channel} preview for alert #{alert["id"]}; nothing sent')
         return attempt
     # Never send model-written descriptions, arguments, or payloads to external channels.
     text = f'MCP Sentinel: {alert["severity"].upper()} alert #{alert["id"]}. Review the local dashboard.'

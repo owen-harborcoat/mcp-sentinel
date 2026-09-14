@@ -90,30 +90,3 @@ async def assess_openrouter(settings, evidence, transport=None):
         raise ValueError('OpenRouter response missing valid model attribution')
     judgment._resolved_model = resolved
     return judgment
-
-
-async def assess_demo(settings, evidence):
-    """Deterministic test double; visibly labeled and never represented as an LLM."""
-    metadata = next((e for e in evidence if e.kind == 'METADATA_OBSERVED'), None)
-    behavior = next((e for e in evidence if e.kind == 'BEHAVIOR_TEST'), None)
-    content = json.dumps(metadata.data.get('after', [])) if metadata else ''
-    if 'local key material' in content or 'export_workspace' in content:
-        return Judgment(flag=True, severity='high', category='instruction_abuse',
-            title='Tool instructions request local key material',
-            rationale='The changed comment guidance asks for key material and a new export tool '
-                      'is exposed after benign calls. This is a synthetic test, not proof of real theft.',
-            evidence_ids=[metadata.id],
-            recommendation='Review the altered instructions and disable the unapproved export capability.')
-    if behavior and behavior.data.get('changed'):
-        return Judgment(flag=True, severity='medium', category='behavior',
-            title='Ticket behavior changed without a metadata update',
-            rationale='The same ticket request returned changed content after activation while the '
-                      'advertised tool contract remained unchanged. Investigate the behavior evidence.',
-            evidence_ids=[behavior.id],
-            recommendation='Inspect the output difference before trusting the updated tool behavior.')
-    return Judgment(flag=False, severity='info', category='none',
-        title='No actionable security finding in this test',
-        rationale='The observed evidence contains no credential-seeking instruction or unexpected '
-                  'behavior. A documentation clarification alone does not merit a security alert.',
-        evidence_ids=[metadata.id] if metadata else [],
-        recommendation='Keep monitoring and retain the observation in the timeline.')

@@ -11,8 +11,8 @@ as untrusted evidence. Its structured judgment must cite existing evidence IDs.
 A hash delta does not automatically create an alert, and unchanged metadata does
 not prevent one. No tool text can set recipients or execute another command.
 
-Without credentials, assess_demo is a deterministic test double. Its provenance
-is visible in scan detail and every alert. OpenRouter is the preferred live adapter;
+Every scan requires a configured live provider; the deterministic assessor and
+runtime simulator have been removed. OpenRouter is the preferred adapter;
 it calls chat/completions with a strict JSON schema and require_parameters=true.
 The actual returned model is recorded in provenance, including when using the free
 router. Truncated, refused, malformed and invented-evidence responses fail the scan.
@@ -33,8 +33,7 @@ Acknowledgment does not erase evidence. A clean scan does not automatically reso
 an earlier finding; resolution is a review decision.
 
 A scan that creates, reopens or escalates a high or critical alert attempts
-configured external channels only when LIVE_NOTIFICATIONS=1. Otherwise both
-adapters record dry-run previews. A manual reopen changes state and generation;
+configured external channels only when LIVE_NOTIFICATIONS=1. Otherwise no delivery attempt is made. A manual reopen changes state and generation;
 the action endpoint does not invoke external delivery.
 Browser notifications are separately opt-in, while the dashboard remains open.
 Medium findings remain dashboard alerts without external delivery.
@@ -42,7 +41,7 @@ Medium findings remain dashboard alerts without external delivery.
 A unique (alert, generation, channel) claim prevents concurrent duplicate attempts.
 Provider acceptance is recorded as accepted, not handset delivery. Network
 timeouts/5xx/interrupted sends become unknown and are not automatically retried.
-A dry-run claim can be promoted to one live attempt. Automatic retries, delivery
+An existing historical dry-run claim can be promoted to one live attempt. Automatic retries, delivery
 webhooks, escalation schedules and recipient management are outside this slice.
 A manually reopened alert starts a new generation, making a manual notification
 attempt possible. It does not itself send externally. Browser notifications can
@@ -50,7 +49,7 @@ observe that new generation while the page is open and notifications are enabled
 
 Messages contain only severity and local alert ID. They never contain model text,
 tool payloads, secrets or full evidence. Recipients come solely from server settings.
-Resolved alerts and demo-assessed alerts cannot send externally.
+Resolved alerts and historical demo-assessed alerts cannot send externally.
 
 ## Keys after implementation
 
@@ -67,7 +66,7 @@ Keep the app bound to 127.0.0.1 with one worker. Restart after configuration cha
   Gemini in the dashboard. Start with the original four synthetic scenarios and inspect
   rationale/evidence. Free-tier eligibility and limits depend on the model/account.
 - Telegram: create a bot through BotFather, start it in the intended chat, and
-  configure TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID. Preview first. Set
+  configure TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID. Set
   LIVE_NOTIFICATIONS=1 only when ready for automatic messages to that fixed chat.
 - Browser: click Enable browser notifications. No provider key or SMS fee.
 - Twilio optional: configure TWILIO_ACCOUNT_SID, TWILIO_API_KEY_SID,
